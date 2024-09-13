@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from 'axios';
-import { Button } from "reactstrap";
-import * as Components from './Components'; // Assuming you have styled-components in Components.js
+import * as Components from './Components'; 
+// Assuming you have styled-components in Components.js
+
 
 function SignUp() {
   const [formData, setFormData] = useState({
@@ -18,9 +19,11 @@ function SignUp() {
   const [errors, setErrors] = useState({});
   const [isSignIn, setIsSignIn] = useState(true);
   const navigate = useNavigate();
+  
 
   const validateForm = () => {
     const newErrors = {};
+
     if (!formData.techid.trim()) newErrors.techid = "Tech ID is required.";
     if (!formData.Name.trim()) newErrors.Name = "Name is required.";
     if (!formData.email) newErrors.email = "Email is required.";
@@ -49,7 +52,7 @@ function SignUp() {
     }
 
     try {
-      const response = await axios.post("https://nr-agencies-project-api.onrender.com/api/auth/register-technician", formData);
+      const response = await axios.post(`http://localhost:5000/api/auth/register-technician`, formData);
       console.log(response.data);
       navigate("/login-page");
     } catch (error) {
@@ -78,6 +81,7 @@ function SignUp() {
 
   const validateLoginForm = () => {
     const newErrors = {};
+
     if (!loginFormData.userid.trim()) newErrors.userid = "User ID is required.";
     if (!loginFormData.firstName.trim()) newErrors.firstName = "First name is required.";
     if (!loginFormData.lastName.trim()) newErrors.lastName = "Last name is required.";
@@ -101,7 +105,7 @@ function SignUp() {
     }
 
     try {
-      const response = await axios.post("https://nr-agencies-project-api.onrender.com/api/auth/register-user", loginFormData);
+      const response = await axios.post(`http://localhost:5000/api/auth/register-user`, loginFormData);
       console.log(response.data);
       navigate("/login-page"); // Redirect based on user role or dashboard
     } catch (error) {

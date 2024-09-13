@@ -39,28 +39,28 @@ const TechnicianDashboard = ({techid, userId }) => {
     const loadTechnicianData = async () => {
       setLoading(true);
       setError('');
-
+  
       try {
         const token = localStorage.getItem('tech_token'); // Retrieve token
         const techid = localStorage.getItem('tech_id');   // Retrieve tech_id
         console.log('Fetching technician data with techid:', techid); // Debugging log
-
-        if (!techid) {
-          throw new Error('TechID not found.');
+  
+        if (!token || !techid) {
+          throw new Error('Token or TechID not found.');
         }
-
-        const response = await axios.get(`https://nr-agencies-project-api.onrender.com/api/auth/technician/${techid}`, {
+  
+        const response = await axios.get(`http://localhost:5000/api/auth/technician/${techid}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-
+  
         console.log('API response data:', response.data); // Log the response
-
+  
         const techDetails = response.data.technician; // Access the nested 'technician' object
-
+  
         if (!techDetails) {
           throw new Error('Technician details not available.');
         }
-
+  
         // Update the personalDetails state with fetched data
         setPersonalDetails({
           techid: techDetails.techid || '',
@@ -70,7 +70,7 @@ const TechnicianDashboard = ({techid, userId }) => {
           aadharNumber: techDetails.adharnumber || '',
           panNumber: techDetails.pancard || ''
         });
-
+  
       } catch (error) {
         console.error('Failed to load technician data:', error);
         setError('Failed to load technician data.');
@@ -78,7 +78,7 @@ const TechnicianDashboard = ({techid, userId }) => {
         setLoading(false);
       }
     };
-
+  
     // Load technician data on component mount
     loadTechnicianData();
   }, []);
@@ -90,7 +90,7 @@ const TechnicianDashboard = ({techid, userId }) => {
     if (activeSection === 'orders') {
       const fetchOrders = async () => {
         try {
-          const response = await axios.get('https://nr-agencies-project-api.onrender.com/api/payment/users');
+          const response = await axios.get(`http://localhost:5000/api/payment/users`);
           console.log('Orders response:', response.data); // Log the response data
           setOrders(response.data.data || []); // Use response.data.data instead of response.data
         } catch (error) {
@@ -104,15 +104,21 @@ const TechnicianDashboard = ({techid, userId }) => {
   }, [activeSection]);
 
   // Define the handleOrderAction function
-  const handleOrderAction = (orderId, action) => {
-    setOrders(prevOrders =>
-      prevOrders.map(order =>
-        order.transactionId === orderId
-          ? { ...order, allowed: action === 'complete' } // Assuming you use 'complete' action to mark as completed
-          : order
-      )
-    );
+  const handleOrderAction = async (transactionId, actionType) => {
+    try {
+      if (actionType === 'complete') {
+        await axios.post(`http://localhost:5000/api/payment/complete/${transactionId}`);
+        setCompletedOrders(prevState => [...prevState, transactionId]);
+      } else if (actionType === 'cancel') {
+        await axios.post(`http://localhost:5000/api/payment/cancel/${transactionId}`);
+        setOrders(prevOrders => prevOrders.filter(order => order.transactionId !== transactionId));
+      }
+    } catch (error) {
+      console.error('Failed to update order status:', error);
+      setError('Failed to update order status.');
+    }
   };
+  
 
   useEffect(() => {
     setSchedules([
@@ -262,51 +268,63 @@ const TechnicianDashboard = ({techid, userId }) => {
           </Container>
       )}
 
-    {activeSection === 'orders' && (
-    <Row className="my-3 justify-content-center">
-        {error && <p className="text-danger">{error}</p>} {/* Show error if any */}
-        {loading ? (
-        <p>Loading...</p> // Show loading indicator while fetching orders
-        ) : orders.length > 0 ? (
-        orders.map(order => (
-            <Col xs={10} md={5} lg={5} key={order.transactionId} className="mb-3"> {/* Adjust column size for different screen sizes */}
-            <Card>
-                <Card.Body>
-                <Card.Title>Order ID: {order.transactionId}</Card.Title>
-                <Card.Text>
-                    <strong>Amount:</strong> ₹{order.amount}
-                    <ul>
-                    {order.cart.map((item, index) => (
-                        <li key={index}>
-                        {item.name} - ₹{item.price}
-                        <div>{item.warranty}</div>
-                        <div>{item.technology}</div>
-                        <div>{item.cleaning}</div>
-                        <div>{item.discount}</div>
-                        <div>{item.reviews}</div>
-                        </li>
-                    ))}
-                    </ul>
-                    <strong>Address:</strong> {order.address || 'No address provided'}
-                    <br />
-                </Card.Text>
-                {!completedOrders.includes(order.transactionId) && (
-                    <Button onClick={() => handleOrderAction(order.transactionId, 'complete')}>
-                    Mark as Completed
-                    </Button>
+      {activeSection === 'orders' && (
+              <Row className="my-3 justify-content-center">
+                {error && <p className="text-danger">{error}</p>}
+                {loading ? (
+                  <p>Loading...</p>
+                ) : orders.length > 0 ? (
+                  orders.map(order => {
+                    const completedStyle = completedOrders.includes(order.transactionId)
+                      ? {
+                          filter: 'blur(2px) brightness(70%)',
+                          opacity: '0.7',
+                          pointerEvents: 'none'
+                        }
+                      : {};
+
+                    return (
+                      <Col xs={10} md={5} lg={5} key={order.transactionId} className="mb-3">
+                        <Card style={completedStyle}>
+                          <Card.Body>
+                            <Card.Title>Order ID: {order.transactionId}</Card.Title>
+                            <Card.Text>
+                              <strong>Amount:</strong> ₹{order.amount}
+                              <ul>
+                                {order.cart.map((item, index) => (
+                                  <li key={index}>
+                                    {item.name} - ₹{item.price}
+                                    <div>{item.warranty}</div>
+                                    <div>{item.technology}</div>
+                                    <div>{item.cleaning}</div>
+                                    <div>{item.discount}</div>
+                                    <div>{item.reviews}</div>
+                                  </li>
+                                ))}
+                              </ul>
+                              <strong>Address:</strong> {order.address || 'No address provided'}
+                              <br />
+                            </Card.Text>
+                            {!completedOrders.includes(order.transactionId) && (
+                              <Button onClick={() => handleOrderAction(order.transactionId, 'complete')}>
+                                Mark as Completed
+                              </Button>
+                            )}
+                            <Button onClick={() => handleOrderAction(order.transactionId, 'cancel')}>
+                              Cancel Order
+                            </Button>
+                          </Card.Body>
+                        </Card>
+                      </Col>
+                    );
+                  })
+                ) : (
+                  <p>No orders available.</p>
                 )}
-                <Button onClick={() => handleOrderAction(order.transactionId, 'cancel')}>
-                    Cancel Order
-                </Button>
-                </Card.Body>
-            </Card>
-            </Col>
-        ))
-        ) : (
-        <p>No orders available.</p> // Show this if there are no orders
-        )}
-    </Row>
-    )}
+              </Row>
+            )}
+
+
 
       {activeSection === 'schedules' && (
         <Row>
@@ -374,7 +392,7 @@ const TechnicianDashboard = ({techid, userId }) => {
         </Col>
     </Row>
 
-      <Modal show={showModal} onHide={handleCloseModal}>
+    <Modal show={showModal} onHide={handleCloseModal}>
       <Modal.Header closeButton>
         <Modal.Title>Technician Profile</Modal.Title>
       </Modal.Header>

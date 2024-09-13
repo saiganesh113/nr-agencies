@@ -2,7 +2,7 @@ import React, { useState,useEffect } from 'react';
 import { Pie } from 'react-chartjs-2';
 import './UserDashboard.css';
 import axios from "axios";
-import AuthStore from '../Navbars/AuthStore';
+// import AuthStore from '../Navbars/AuthStore';
 import 'assets/css/bootstrap.min.css';
 import { Link, } from 'react-scroll';
 import { Card, CardBody, CardTitle, CardText, Button} from 'react-bootstrap'; 
@@ -98,78 +98,68 @@ const [personalDetails, setPersonalDetails] = useState({
 
 useEffect(() => {
   const loadUserData = async () => {
-    const userId = localStorage.getItem('user_id'); // Ensure 'user_id' key is correct
-    const token = localStorage.getItem('user_token'); // Ensure 'user_token' key is correct
+    const userId = localStorage.getItem('user_id');
+    const token = localStorage.getItem('user_token');
 
-    console.log('UserID:', userId);  // Debugging purpose
-    console.log('Token:', token);    // Debugging purpose
+    console.log('UserID:', userId);
+    console.log('Token:', token);
 
-    // Check if token exists
-    if (token) {
-      try {
-        const decodedToken = jwtDecode(token);
-        console.log('Decoded Token:', decodedToken);
-
-        // Validate the decoded token, check both `id` and `userId` as they might vary
-        if (!decodedToken.id && !decodedToken.userId) {
-          throw new Error('Invalid token structure.');
-        }
-      } catch (error) {
-        console.error('Failed to decode token:', error);
-        setError('Failed to decode token.');
-        navigate('/login'); // Redirect to login if token is invalid
-        return;
-      }
-    } else {
+    if (!token) {
       setError('Token is missing. Please log in.');
-      navigate('/login'); // Redirect if no token
+      navigate('/login');
       return;
     }
 
-    // If both userId and token exist, fetch user data
-    if (userId && token) {
-      setLoading(true);
-      try {
-        const response = await axios.get(`https://nr-agencies-project-api.onrender.com/api/auth/user/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` }, // Attach token in Authorization header
+    try {
+      const decodedToken = jwtDecode(token);
+      console.log('Decoded Token:', decodedToken);
+
+      // Ensure the token structure matches your backend's expectations
+      if (!decodedToken.id) {
+        throw new Error('Invalid token structure.');
+      }
+
+      // Fetch user data if both userId and token are valid
+      if (userId) {
+        setLoading(true);
+        const response = await axios.get(`http://localhost:5000/api/auth/user/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
 
-        console.log('API Response:', response); // Debugging purpose
+        console.log('API Response:', response);
 
-        // Access user details from the correct path in the response
-        const userDetails = response.data.data || response.data; // Depending on your API structure
+        const userDetails = response.data;
 
         if (!userDetails) {
           throw new Error('User details are not available.');
         }
 
-        console.log('User Details:', userDetails); // Debugging purpose
+        console.log('User Details:', userDetails);
 
-        // Format the dateOfBirth field if available
         const formattedDateOfBirth = userDetails.dateofbirth
           ? new Date(userDetails.dateofbirth).toISOString().split('T')[0]
           : '';
 
-        // Update the personal details state
         setPersonalDetails({
-          userid: userDetails.userid || '', // Ensure this matches your response structure
+          userid: userDetails.userid || '',
           firstName: userDetails.firstName || '',
           lastName: userDetails.lastName || '',
           mobileNumber: userDetails.phone || '',
           email: userDetails.email || '',
           dateOfBirth: formattedDateOfBirth,
         });
-      } catch (error) {
-        console.error('Failed to load user data:', error);
-        setError('Failed to load user data.');
-        if (error.response && error.response.status === 401) {
-          navigate('/login'); // Redirect to login on 401 Unauthorized
-        }
-      } finally {
-        setLoading(false); // Stop loading once request is done
+      } else {
+        setError('User ID missing.');
+        navigate('/login');
       }
-    } else {
-      setError('User ID or token missing.');
+    } catch (error) {
+      console.error('Failed to load user data:', error);
+      setError('Failed to load user data.');
+      if (error.response && error.response.status === 401) {
+        navigate('/login');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -200,10 +190,10 @@ const handleLogout = () => {
         installationsResponse,
         notificationsResponse // Add the response for notifications
       ] = await Promise.all([
-        axios.get('https://nr-agencies-project-api.onrender.com/api/services'),
-        axios.get('https://nr-agencies-project-api.onrender.com/api/repairs'),
-        axios.get('https://nr-agencies-project-api.onrender.com/api/installations'),
-        axios.get('https://nr-agencies-project-api.onrender.com/api/notifications') // Corrected endpoint
+        axios.get('http://localhost:5000/api/services'),
+        axios.get('http://localhost:5000/api/repairs'),
+        axios.get('http://localhost:5000/api/installations'),
+        axios.get('http://localhost:5000/api/notifications') // Corrected endpoint
       ]);
   
       // Log the fetched data for debugging
@@ -273,7 +263,7 @@ const handleLogout = () => {
       }
 
       // Make payment request to the backend
-      const response = await axios.post('https://nr-agencies-project-api.onrender.com/api/payment', {
+      const response = await axios.post('http://localhost:5000/api/payment', {
         userid,
         amount,
         address,  // Use the address from modal
@@ -365,7 +355,7 @@ const handleLogout = () => {
       setShowCartModal(true);
 
         // Send the request to the backend
-        await axios.post('https://nr-agencies-project-api.onrender.com/api/carts', cartItem);
+        await axios.post('http://localhost:5000/api/carts', cartItem);
       } catch (error) {
         console.error('Error during booking process:', error);
         setError('An error occurred while booking the slot. Please try again.');
