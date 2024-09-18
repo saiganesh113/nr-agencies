@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState,useEffect} from 'react';
 import { Pie } from 'react-chartjs-2';
 import './UserDashboard.css';
 import axios from "axios";
@@ -122,7 +122,7 @@ useEffect(() => {
       // Fetch user data if both userId and token are valid
       if (userId) {
         setLoading(true);
-        const response = await axios.get(`http://localhost:5000/api/auth/user/${userId}`, {
+        const response = await axios.get(`https://nr-agencies-project-api.onrender.com/api/auth/user/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -190,10 +190,10 @@ const handleLogout = () => {
         installationsResponse,
         notificationsResponse // Add the response for notifications
       ] = await Promise.all([
-        axios.get('http://localhost:5000/api/services'),
-        axios.get('http://localhost:5000/api/repairs'),
-        axios.get('http://localhost:5000/api/installations'),
-        axios.get('http://localhost:5000/api/notifications') // Corrected endpoint
+        axios.get(`https://nr-agencies-project-api.onrender.com/api/services`),
+        axios.get(`https://nr-agencies-project-api.onrender.com/api/repairs`),
+        axios.get(`https://nr-agencies-project-api.onrender.com/api/installations`),
+        axios.get(`https://nr-agencies-project-api.onrender.com/api/notifications`) // Corrected endpoint
       ]);
   
       // Log the fetched data for debugging
@@ -263,7 +263,7 @@ const handleLogout = () => {
       }
 
       // Make payment request to the backend
-      const response = await axios.post('http://localhost:5000/api/payment', {
+      const response = await axios.post('https://nr-agencies-project-api.onrender.com/api/payment', {
         userid,
         amount,
         address,  // Use the address from modal
@@ -355,7 +355,7 @@ const handleLogout = () => {
       setShowCartModal(true);
 
         // Send the request to the backend
-        await axios.post('http://localhost:5000/api/carts', cartItem);
+        await axios.post('https://nr-agencies-project-api.onrender.com/api/carts', cartItem);
       } catch (error) {
         console.error('Error during booking process:', error);
         setError('An error occurred while booking the slot. Please try again.');

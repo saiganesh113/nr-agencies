@@ -19,7 +19,8 @@ import ExamplesNavbar from "components/Navbars/ExamplesNavbar.js";
 import TransparentFooter from "components/Footers/TransparentFooter.js";
 import { jwtDecode } from "jwt-decode"; // Correct import for jwt-decode
 
-const API_BASE_URL = `http://localhost:5000/api/auth`; // Adjust as necessary
+// Adjust as necessary
+const API_BASE_URL = `https://nr-agencies-project-api.onrender.com`;
 
 function LoginPage() {
   const [userId, setUserId] = useState(""); // User ID state
@@ -55,8 +56,8 @@ function LoginPage() {
     try {
         // Determine the login endpoint and payload based on the role
         const endpoint = role === "user"
-            ? `${API_BASE_URL}/login-user`
-            : `${API_BASE_URL}/login-technician`;
+            ? `${API_BASE_URL}/api/auth/login-user`
+            : `${API_BASE_URL}/api/auth/login-technician`;
 
         const payload = role === "user"
             ? { userid: userId, password }
@@ -134,7 +135,7 @@ function LoginPage() {
                         </InputGroupText>
                       </InputGroupAddon>
                       <Input
-                        placeholder="User ID"
+                        placeholder="ID Here"
                         type="text"
                         value={userId}
                         onChange={(e) => setUserId(e.target.value)}

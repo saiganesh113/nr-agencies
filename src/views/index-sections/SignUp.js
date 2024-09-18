@@ -1,58 +1,147 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import '@fortawesome/fontawesome-free/css/all.min.css';
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
-import * as Components from './Components'; 
-// Assuming you have styled-components in Components.js
-
+import { Link} from "react-router-dom";
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardBody,
+  CardFooter,
+  CardTitle,
+  Form,
+  Input,
+  InputGroupAddon,
+  InputGroupText,
+  InputGroup,
+  Container,
+  Row,
+  Col,
+} from "reactstrap";
+import axios from "axios";
 
 function SignUp() {
   const [formData, setFormData] = useState({
-    techid: "",
-    Name: "",
+    userid: "",
+    firstName: "",
+    lastName: "",
     email: "",
     phone: "",
-    adharnumber: "",
-    pancard: "",
+    dateOfBirth: "",
     password: "",
     confirmPassword: "",
+
+    // Technician fields
+    techId: "",
+    techName: "",
+    techEmail: "",
+    techPhone: "",
+    aadharNumber: "",
+    panCard: "",
+    techPassword: "",
+    techConfirmPassword: "",
   });
+
+  const [role, setRole] = useState("user");
   const [errors, setErrors] = useState({});
-  const [isSignIn, setIsSignIn] = useState(true);
   const navigate = useNavigate();
-  
 
-  const validateForm = () => {
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleRoleChange = (e) => {
+    setRole(e.target.value);
+    setErrors({}); // Clear errors when switching roles
+
+    if (e.target.value === "user") {
+      setFormData((prev) => ({
+        ...prev,
+        techId: "",
+        techName: "",
+        techEmail: "",
+        techPhone: "",
+        aadharNumber: "",
+        panCard: "",
+        techPassword: "",
+        techConfirmPassword: "",
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        userid: "",
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        dateOfBirth: "",
+        password: "",
+        confirmPassword: "",
+      }));
+    }
+  };
+
+  const validateUserForm = () => {
     const newErrors = {};
-
-    if (!formData.techid.trim()) newErrors.techid = "Tech ID is required.";
-    if (!formData.Name.trim()) newErrors.Name = "Name is required.";
+    if (!formData.userid.trim()) newErrors.userid = "User ID is required.";
+    if (!formData.firstName.trim()) newErrors.firstName = "First name is required.";
+    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required.";
     if (!formData.email) newErrors.email = "Email is required.";
     if (!formData.phone) newErrors.phone = "Phone number is required.";
-    if (!formData.adharnumber) newErrors.adharnumber = "Adhar Number is required.";
-    if (!formData.pancard) newErrors.pancard = "Pan Card is required.";
+    if (!formData.dateOfBirth) newErrors.dateOfBirth = "Date of birth is required.";
     if (!formData.password) newErrors.password = "Password is required.";
-    if (formData.password !== formData.confirmPassword)
-      newErrors.confirmPassword = "Passwords do not match.";
-
+    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match.";
     return newErrors;
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({ ...prevState, [name]: value }));
+  const validateTechnicianForm = () => {
+    const newErrors = {};
+    if (!formData.techId.trim()) newErrors.techId = "Tech ID is required.";
+    if (!formData.techName.trim()) newErrors.techName = "Name is required.";
+    if (!formData.techEmail) newErrors.techEmail = "Email is required.";
+    if (!formData.techPhone) newErrors.techPhone = "Phone number is required.";
+    if (!formData.aadharNumber) newErrors.aadharNumber = "Aadhar number is required.";
+    if (!formData.panCard) newErrors.panCard = "PAN card is required.";
+    if (!formData.techPassword) newErrors.techPassword = "Password is required.";
+    if (formData.techPassword !== formData.techConfirmPassword) newErrors.techConfirmPassword = "Passwords do not match.";
+    return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const validationErrors = validateForm();
+    const validationErrors = role === "user" ? validateUserForm() : validateTechnicianForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
 
+    const endpoint = role === "user"
+      ? `https://nr-agencies-project-api.onrender.com/api/auth/register-user`
+      : `https://nr-agencies-project-api.onrender.com/api/auth/register-technician`;
+
+    const payload = role === "user" 
+      ? {
+        userid: formData.userid,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        dateofbirth: formData.dateOfBirth,
+        password: formData.password,
+      }
+      : {
+        techid: formData.techId,
+        Name: formData.techName,
+        email: formData.techEmail,
+        phone: formData.techPhone,
+        adharnumber: formData.aadharNumber,
+        pancard: formData.panCard,
+        password: formData.techPassword,
+      };
+
     try {
-      const response = await axios.post(`http://localhost:5000/api/auth/register-technician`, formData);
+      const response = await axios.post(endpoint, payload);
       console.log(response.data);
       navigate("/login-page");
     } catch (error) {
@@ -61,259 +150,309 @@ function SignUp() {
     }
   };
 
-  // Login form state
-  const [loginFormData, setLoginFormData] = useState({
-    userid: "",
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    dateofbirth: "",
-    password: "",
-    confirmPassword: ""
-  });
-
-  const [loginErrors, setLoginErrors] = useState({});
-
-  const handleLoginChange = (e) => {
-    setLoginFormData({ ...loginFormData, [e.target.name]: e.target.value });
-  };
-
-  const validateLoginForm = () => {
-    const newErrors = {};
-
-    if (!loginFormData.userid.trim()) newErrors.userid = "User ID is required.";
-    if (!loginFormData.firstName.trim()) newErrors.firstName = "First name is required.";
-    if (!loginFormData.lastName.trim()) newErrors.lastName = "Last name is required.";
-    if (!loginFormData.email) newErrors.email = "Email is required.";
-    if (!loginFormData.phone) newErrors.phone = "Phone number is required.";
-    if (!loginFormData.dateofbirth) newErrors.dateofbirth = "Date of birth is required.";
-    if (!loginFormData.password) newErrors.password = "Password is required.";
-    if (loginFormData.password !== loginFormData.confirmPassword)
-      newErrors.confirmPassword = "Passwords do not match.";
-
-    return newErrors;
-  };
-
-  const handleLoginSubmit = async (e) => {
-    e.preventDefault();
-
-    const validationErrors = validateLoginForm();
-    if (Object.keys(validationErrors).length > 0) {
-      setLoginErrors(validationErrors);
-      return;
-    }
-
-    try {
-      const response = await axios.post(`http://localhost:5000/api/auth/register-user`, loginFormData);
-      console.log(response.data);
-      navigate("/login-page"); // Redirect based on user role or dashboard
-    } catch (error) {
-      console.error("Error during login:", error.response?.data?.message || "signup as failed");
-      setLoginErrors({ submit: error.response?.data?.message || "signup as failed" });
-    }
-  };
-
   return (
     <div
+      className="section section-signup"
       style={{
-        backgroundImage: `url(${require('assets/img/bg11.jpg')})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'top center',
-        height: '120vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '20px',
-        boxSizing: 'border-box',
+        backgroundImage: "url(" + require("assets/img/bg11.jpg") + ")",
+        backgroundSize: "cover",
+        backgroundPosition: "top center",
+        minHeight: "700px",
       }}
     >
-      <Components.Container>
-        {/* Sign Up Form */}
-        <Components.SignUpContainer signinIn={isSignIn} style={{ display: isSignIn ? 'none' : 'block' }}>
-          <Components.Form onSubmit={handleSubmit}>
-            <h3 style={{ paddingTop: '20px' }}><b>SignIn@Technician</b></h3>
-            <Components.Input
-              name="techid"
-              placeholder="Tech ID"
-              type="text"
-              value={formData.techid}
-              onChange={handleChange}
-            />
-            {errors.techid && <div className="text-danger">{errors.techid}</div>}
+      <Container>
+        <Row>
+          <Card className="card-signup" data-background-color="blue">
+            <Form className="form" onSubmit={handleSubmit}>
+              <CardHeader className="text-center">
+                <CardTitle className="title-up" tag="h3">Sign Up</CardTitle>
+              </CardHeader>
+              <CardBody>
+                <Row className="text-center mb-3">
+                  <Col>
+                    <Button
+                      className={role === "user" ? "btn-primary" : "btn-neutral"}
+                      onClick={() => handleRoleChange({ target: { value: "user" } })}
+                    >
+                      User
+                    </Button>
+                  </Col>
+                  <Col>
+                    <Button
+                      className={role === "technician" ? "btn-primary" : "btn-neutral"}
+                      onClick={() => handleRoleChange({ target: { value: "technician" } })}
+                    >
+                      Technician
+                    </Button>
+                  </Col>
+                </Row>
 
-            <Components.Input
-              name="Name"
-              placeholder="Name"
-              type="text"
-              value={formData.Name}
-              onChange={handleChange}
-            />
-            {errors.Name && <div className="text-danger">{errors.Name}</div>}
+                {role === "user" && (
+                  <>
+                    <InputGroup className={"no-border"}>
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="now-ui-icons users_circle-08"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input
+                        name="userid"
+                        placeholder="User ID..."
+                        type="text"
+                        onChange={handleChange}
+                        value={formData.userid}
+                      />
+                      {errors.userid && <div className="text-danger">{errors.userid}</div>}
+                    </InputGroup>
+                    <InputGroup className={"no-border"}>
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="now-ui-icons text_caps-small"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input
+                        name="firstName"
+                        placeholder="First Name..."
+                        type="text"
+                        onChange={handleChange}
+                        value={formData.firstName}
+                      />
+                      {errors.firstName && <div className="text-danger">{errors.firstName}</div>}
+                    </InputGroup>
+                    <InputGroup className={"no-border"}>
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="now-ui-icons text_caps-small"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input
+                        name="lastName"
+                        placeholder="Last Name..."
+                        type="text"
+                        onChange={handleChange}
+                        value={formData.lastName}
+                      />
+                      {errors.lastName && <div className="text-danger">{errors.lastName}</div>}
+                    </InputGroup>
+                    <InputGroup className={"no-border"}>
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="now-ui-icons ui-1_email-85"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input
+                        name="email"
+                        placeholder="Email..."
+                        type="email"
+                        onChange={handleChange}
+                        value={formData.email}
+                      />
+                      {errors.email && <div className="text-danger">{errors.email}</div>}
+                    </InputGroup>
+                    <InputGroup className={"no-border"}>
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="now-ui-icons tech_mobile"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input
+                        name="phone"
+                        placeholder="Phone Number..."
+                        type="text"
+                        onChange={handleChange}
+                        value={formData.phone}
+                      />
+                      {errors.phone && <div className="text-danger">{errors.phone}</div>}
+                    </InputGroup>
+                    <InputGroup className={"no-border"}>
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="now-ui-icons ui-1_calendar-60"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input
+                        name="dateOfBirth"
+                        placeholder="Date of Birth..."
+                        type="date"
+                        onChange={handleChange}
+                        value={formData.dateOfBirth}
+                      />
+                      {errors.dateOfBirth && <div className="text-danger">{errors.dateOfBirth}</div>}
+                    </InputGroup>
+                    <InputGroup className={"no-border"}>
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="now-ui-icons ui-1_lock-circle-open"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input
+                        name="password"
+                        placeholder="Password..."
+                        type="password"
+                        onChange={handleChange}
+                        value={formData.password}
+                      />
+                      {errors.password && <div className="text-danger">{errors.password}</div>}
+                    </InputGroup>
+                    <InputGroup className={"no-border"}>
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="now-ui-icons ui-1_lock-circle-open"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input
+                        name="confirmPassword"
+                        placeholder="Confirm Password..."
+                        type="password"
+                        onChange={handleChange}
+                        value={formData.confirmPassword}
+                      />
+                      {errors.confirmPassword && <div className="text-danger">{errors.confirmPassword}</div>}
+                    </InputGroup>
+                  </>
+                )}
 
-            <Components.Input
-              name="email"
-              placeholder="Email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-            />
-            {errors.email && <div className="text-danger">{errors.email}</div>}
+                {role === "technician" && (
+                  <>
+                    <InputGroup className={"no-border"}>
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="now-ui-icons users_circle-08"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input
+                        name="techId"
+                        placeholder="Technician ID..."
+                        type="text"
+                        onChange={handleChange}
+                        value={formData.techId}
+                      />
+                      {errors.techId && <div className="text-danger">{errors.techId}</div>}
+                    </InputGroup>
+                    <InputGroup className={"no-border"}>
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="now-ui-icons text_caps-small"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input
+                        name="techName"
+                        placeholder="Technician Name..."
+                        type="text"
+                        onChange={handleChange}
+                        value={formData.techName}
+                      />
+                      {errors.techName && <div className="text-danger">{errors.techName}</div>}
+                    </InputGroup>
+                    <InputGroup className={"no-border"}>
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="now-ui-icons ui-1_email-85"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input
+                        name="techEmail"
+                        placeholder="Technician Email..."
+                        type="email"
+                        onChange={handleChange}
+                        value={formData.techEmail}
+                      />
+                      {errors.techEmail && <div className="text-danger">{errors.techEmail}</div>}
+                    </InputGroup>
+                    <InputGroup className={"no-border"}>
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="now-ui-icons tech_mobile"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input
+                        name="techPhone"
+                        placeholder="Phone Number..."
+                        type="text"
+                        onChange={handleChange}
+                        value={formData.techPhone}
+                      />
+                      {errors.techPhone && <div className="text-danger">{errors.techPhone}</div>}
+                    </InputGroup>
+                    <InputGroup className={"no-border"}>
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="now-ui-icons business_badge"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input
+                        name="aadharNumber"
+                        placeholder="Aadhar Number..."
+                        type="text"
+                        onChange={handleChange}
+                        value={formData.aadharNumber}
+                      />
+                      {errors.aadharNumber && <div className="text-danger">{errors.aadharNumber}</div>}
+                    </InputGroup>
+                    <InputGroup className={"no-border"}>
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="now-ui-icons files_single-copy-04"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input
+                        name="panCard"
+                        placeholder="PAN Card..."
+                        type="text"
+                        onChange={handleChange}
+                        value={formData.panCard}
+                      />
+                      {errors.panCard && <div className="text-danger">{errors.panCard}</div>}
+                    </InputGroup>
+                    <InputGroup className={"no-border"}>
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="now-ui-icons ui-1_lock-circle-open"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input
+                        name="techPassword"
+                        placeholder="Password..."
+                        type="password"
+                        onChange={handleChange}
+                        value={formData.techPassword}
+                      />
+                      {errors.techPassword && <div className="text-danger">{errors.techPassword}</div>}
+                    </InputGroup>
+                    <InputGroup className={"no-border"}>
+                      <InputGroupAddon addonType="prepend">
+                        <InputGroupText>
+                          <i className="now-ui-icons ui-1_lock-circle-open"></i>
+                        </InputGroupText>
+                      </InputGroupAddon>
+                      <Input
+                        name="techConfirmPassword"
+                        placeholder="Confirm Password..."
+                        type="password"
+                        onChange={handleChange}
+                        value={formData.techConfirmPassword}
+                      />
+                      {errors.techConfirmPassword && <div className="text-danger">{errors.techConfirmPassword}</div>}
+                    </InputGroup>
+                  </>
+                )}
+                <CardFooter className="text-center">
+                  <Button className="btn-fill" color="primary" type="submit">
+                    Sign Up
+                  </Button>
+                  <Row className="text-center">
+                  <Col>
+                  <Link to="/login-page">Already have an account? Login</Link>
+                  </Col>
+                  </Row>
+                </CardFooter>
 
-            <Components.Input
-              name="phone"
-              placeholder="Phone Number"
-              type="text"
-              value={formData.phone}
-              onChange={handleChange}
-            />
-            {errors.phone && <div className="text-danger">{errors.phone}</div>}
-
-            <Components.Input
-              name="adharnumber"
-              placeholder="Adhar Number"
-              type="text"
-              value={formData.adharnumber}
-              onChange={handleChange}
-            />
-            {errors.adharnumber && <div className="text-danger">{errors.adharnumber}</div>}
-
-            <Components.Input
-              name="pancard"
-              placeholder="Pan Card"
-              type="text"
-              value={formData.pancard}
-              onChange={handleChange}
-            />
-            {errors.pancard && <div className="text-danger">{errors.pancard}</div>}
-
-            <Components.Input
-              name="password"
-              placeholder="Password"
-              type="password"
-              value={formData.password}
-              onChange={handleChange}
-            />
-            {errors.password && <div className="text-danger">{errors.password}</div>}
-
-            <Components.Input
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              type="password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-            />
-            {errors.confirmPassword && <div className="text-danger">{errors.confirmPassword}</div>}
-            <br />
-            <Components.Button type="submit">Sign Up</Components.Button>
-          </Components.Form>
-        </Components.SignUpContainer>
-
-        {/* Sign In Form */}
-        <Components.SignInContainer signinIn={isSignIn} style={{ display: isSignIn ? 'block' : 'none' }}>
-          <Components.Form onSubmit={handleLoginSubmit}>
-            <h3 style={{ paddingTop: '20px' }}><b>SignUp@User</b></h3>
-
-            <Components.Input
-              name="userid"
-              placeholder="User ID"
-              type="text"
-              value={loginFormData.userid}
-              onChange={handleLoginChange}
-            />
-            {loginErrors.userid && <div className="text-danger">{loginErrors.userid}</div>}
-
-            <Components.Input
-              name="firstName"
-              placeholder="First Name"
-              type="text"
-              value={loginFormData.firstName}
-              onChange={handleLoginChange}
-            />
-            {loginErrors.firstName && <div className="text-danger">{loginErrors.firstName}</div>}
-
-            <Components.Input
-              name="lastName"
-              placeholder="Last Name"
-              type="text"
-              value={loginFormData.lastName}
-              onChange={handleLoginChange}
-            />
-            {loginErrors.lastName && <div className="text-danger">{loginErrors.lastName}</div>}
-
-            <Components.Input
-              name="email"
-              placeholder="Email"
-              type="email"
-              value={loginFormData.email}
-              onChange={handleLoginChange}
-            />
-            {loginErrors.email && <div className="text-danger">{loginErrors.email}</div>}
-
-            <Components.Input
-              name="phone"
-              placeholder="Phone Number"
-              type="text"
-              value={loginFormData.phone}
-              onChange={handleLoginChange}
-            />
-            {loginErrors.phone && <div className="text-danger">{loginErrors.phone}</div>}
-
-            <Components.Input
-              name="dateofbirth"
-              placeholder="Date of Birth"
-              type="date"
-              value={loginFormData.dateofbirth}
-              onChange={handleLoginChange}
-            />
-            {loginErrors.dateofbirth && <div className="text-danger">{loginErrors.dateofbirth}</div>}
-
-            <Components.Input
-              name="password"
-              placeholder="Password"
-              type="password"
-              value={loginFormData.password}
-              onChange={handleLoginChange}
-            />
-            {loginErrors.password && <div className="text-danger">{loginErrors.password}</div>}
-
-            <Components.Input
-              name="confirmPassword"
-              placeholder="Confirm Password"
-              type="password"
-              value={loginFormData.confirmPassword}
-              onChange={handleLoginChange}
-            />
-            {loginErrors.confirmPassword && <div className="text-danger">{loginErrors.confirmPassword}</div>}
-            <br />
-            <Components.Button type="submit">Sign Up</Components.Button>
-          </Components.Form>
-        </Components.SignInContainer>
-
-        <Components.OverlayContainer signinIn={isSignIn}>
-          <Components.Overlay signinIn={isSignIn}>
-            <Components.LeftOverlayPanel signinIn={isSignIn}>
-              <Components.Title>Hello, Technician!</Components.Title>
-              <Components.Paragraph>
-                Enter your personal details to work  with us
-              </Components.Paragraph>
-              <Components.GhostButton onClick={() => setIsSignIn(true)}>
-                Sign Up as User
-              </Components.GhostButton>
-            </Components.LeftOverlayPanel>
-
-            <Components.RightOverlayPanel signinIn={isSignIn}>
-              <Components.Title>Hello, User!</Components.Title>
-              <Components.Paragraph>
-                Enter your personal details and start your journey with us
-              </Components.Paragraph>
-              <Components.GhostButton onClick={() => setIsSignIn(false)}>
-                Sign Up as Technician
-              </Components.GhostButton>
-            </Components.RightOverlayPanel>
-          </Components.Overlay>
-        </Components.OverlayContainer>
-      </Components.Container>
+                {errors.submit && <div className="text-danger">{errors.submit}</div>}
+              </CardBody>
+            </Form>
+          </Card>
+        </Row>
+      </Container>
     </div>
   );
 }
