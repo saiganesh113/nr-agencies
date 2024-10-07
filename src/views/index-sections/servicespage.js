@@ -59,7 +59,7 @@ const [wuninstallations, setWuninstallations] = useState([]);
 useEffect(() => {
   const fetchWashRepairs = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/wrepairs');
+      const response = await axios.get('https://sree-teq-project-api.onrender.com/api/wrepairs');
       setWrepairs(response.data); // Set the repair services from the backend
     } catch (error) {
       console.error('Error fetching repairs:', error);
@@ -68,7 +68,7 @@ useEffect(() => {
 
   const fetchWashInstallations = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/winstallations');
+      const response = await axios.get('https://sree-teq-project-api.onrender.com/api/winstallations');
       setWinstallations(response.data); // Set the installation services from the backend
     } catch (error) {
       console.error('Error fetching installations:', error);
@@ -77,7 +77,7 @@ useEffect(() => {
 
   const fetchWashUninstallations = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/wuninstallations');
+      const response = await axios.get('https://sree-teq-project-api.onrender.com/api/wuninstallations');
       setWuninstallations(response.data); // Set the uninstallation services from the backend
     } catch (error) {
       console.error('Error fetching uninstallations:', error);
@@ -102,9 +102,9 @@ useEffect(() => {
     const fetchFridgeData = async () => {
       try {
         const [singleResponse, doubleResponse, sideResponse] = await Promise.all([
-          axios.get('http://localhost:5000/api/singledoor'),
-          axios.get('http://localhost:5000/api/doubledoor'),
-          axios.get('http://localhost:5000/api/sidedoor'),
+          axios.get('https://sree-teq-project-api.onrender.com/api/singledoor'),
+          axios.get('https://sree-teq-project-api.onrender.com/api/doubledoor'),
+          axios.get('https://sree-teq-project-api.onrender.com/api/sidedoor'),
         ]);
         setSingleDoors(singleResponse.data);
         setDoubleDoors(doubleResponse.data);

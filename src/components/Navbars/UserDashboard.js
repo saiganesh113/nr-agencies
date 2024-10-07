@@ -167,7 +167,7 @@ useEffect(() => {
       // Fetch user data if both userId and token are valid
       if (userId) {
         setLoading(true);
-        const response = await axios.get(`http://localhost:5000/api/auth/user/${userId}`, {
+        const response = await axios.get(`https://sree-teq-project-api.onrender.com/api/auth/user/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -223,10 +223,10 @@ const handleLogout = () => {
         installationsResponse,
         notificationsResponse // Add the response for notifications
       ] = await Promise.all([
-        axios.get('http://localhost:5000/api/services'),
-        axios.get('http://localhost:5000/api/repairs'),
-        axios.get('http://localhost:5000/api/installations'),
-        axios.get('http://localhost:5000/api/notifications') // Corrected endpoint
+        axios.get('https://sree-teq-project-api.onrender.com/api/services'),
+        axios.get('https://sree-teq-project-api.onrender.com/api/repairs'),
+        axios.get('https://sree-teq-project-api.onrender.com/api/installations'),
+        axios.get('https://sree-teq-project-api.onrender.com/api/notifications') // Corrected endpoint
       ]);
   
       // Log the fetched data for debugging
@@ -300,7 +300,7 @@ const handleLogout = () => {
           alert(`Payment Successful! Payment ID: ${razorpayPaymentId}`);
   
           // Send the transactionId (razorpayPaymentId) to the backend
-          const paymentResponse = await axios.post('http://localhost:5000/api/payment', {
+          const paymentResponse = await axios.post('https://sree-teq-project-api.onrender.com/api/payment', {
             userid,
             amount: totalAmount,
             address,
@@ -401,7 +401,7 @@ const handleLogout = () => {
         setShowSlotModal(false);
         setShowCartModal(true);
 
-        await axios.post('http://localhost:5000/api/carts', cartItem);
+        await axios.post('https://sree-teq-project-api.onrender.com/api/carts', cartItem);
     } catch (error) {
         console.error('Error during booking process:', error);
     }
@@ -497,7 +497,7 @@ const handleLogout = () => {
             throw new Error('Userid is required to fetch cart history');
         }
 
-        const response = await axios.get(`http://localhost:5000/api/payment/user/${userid}`);
+        const response = await axios.get(`https://sree-teq-project-api.onrender.com/api/payment/user/${userid}`);
         if (response.data.status === 'success') {
             const cartHistory = response.data.data.map((payment) => {
                 return {
@@ -617,7 +617,7 @@ const [wuninstallations, setWuninstallations] = useState([]);
 useEffect(() => {
   const fetchWashRepairs = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/wrepairs');
+      const response = await axios.get('https://sree-teq-project-api.onrender.com/api/wrepairs');
       setWrepairs(response.data); // Set the repair services from the backend
     } catch (error) {
       console.error('Error fetching repairs:', error);
@@ -626,7 +626,7 @@ useEffect(() => {
 
   const fetchWashInstallations = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/winstallations');
+      const response = await axios.get('https://sree-teq-project-api.onrender.com/api/winstallations');
       setWinstallations(response.data); // Set the installation services from the backend
     } catch (error) {
       console.error('Error fetching installations:', error);
@@ -635,7 +635,7 @@ useEffect(() => {
 
   const fetchWashUninstallations = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/wuninstallations');
+      const response = await axios.get('https://sree-teq-project-api.onrender.com/api/wuninstallations');
       setWuninstallations(response.data); // Set the uninstallation services from the backend
     } catch (error) {
       console.error('Error fetching uninstallations:', error);
@@ -670,7 +670,7 @@ const handleRemoveservicefromCart = (selectedServiceId) => {
   useEffect(() => {
     const fetchSingleDoors = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/singledoor');
+        const response = await axios.get('https://sree-teq-project-api.onrender.com/api/singledoor');
         setSingleDoors(response.data); // Assuming response.data is an array
       } catch (error) {
         console.error('Error fetching single door refrigerators:', error);
@@ -683,7 +683,7 @@ const handleRemoveservicefromCart = (selectedServiceId) => {
   useEffect(() => {
     const fetchDoubleDoors = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/doubledoor');
+        const response = await axios.get('https://sree-teq-project-api.onrender.com/api/doubledoor');
         setDoubleDoors(response.data); // Assuming response.data is an array
       } catch (error) {
         console.error('Error fetching single door refrigerators:', error);
@@ -696,7 +696,7 @@ const handleRemoveservicefromCart = (selectedServiceId) => {
   useEffect(() => {
     const fetchsideBySideDoors = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/sidedoor');
+        const response = await axios.get('https://sree-teq-project-api.onrender.com/api/sidedoor');
         setSideBySideDoors(response.data); // Assuming response.data is an array
       } catch (error) {
         console.error('Error fetching single door refrigerators:', error);

@@ -105,8 +105,8 @@ function SignUp() {
     }
 
     const endpoint = role === "user"
-      ? `http://localhost:5000/api/auth/register-user`
-      : `http://localhost:5000/api/auth/register-technician`;
+      ? `https://sree-teq-project-api.onrender.com/api/auth/register-user`
+      : `https://sree-teq-project-api.onrender.com/api/auth/register-technician`;
 
     const payload = role === "user"
       ? {
