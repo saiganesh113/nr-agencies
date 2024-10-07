@@ -32,7 +32,6 @@ function Admincalender() {
       const handleSave = () => {
         setEditMode(false);
         setShowModal(false);
-        console.log('Personal Details Saved:', personalDetails);
       };
     
       const handleChange = (e) => {
