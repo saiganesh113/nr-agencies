@@ -50,7 +50,7 @@ root.render(
       <Route path="/Sreeteq/kingdev376/superadmin/admin-settings" element={<ProtectedRoute><Adminsettings /></ProtectedRoute>} />
 
       {/* Redirect all other paths */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<Navigate to="/index" replace />} />
     </Routes>
 
     {/* WhatsApp */}
