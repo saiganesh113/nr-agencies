@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FaCheck, FaTimes, FaMapMarkerAlt, FaPhoneAlt } from 'react-icons/fa';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Container, Row, Col, Card, Badge, Button, Modal, Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -12,6 +13,7 @@ import { Bar } from 'react-chartjs-2';
 import PieChart from './piechart';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+
 
 const TechnicianDashboard = ({techid, userId }) => {
   const [location, setLocation] = useState('Fetching location...');
@@ -28,7 +30,6 @@ const TechnicianDashboard = ({techid, userId }) => {
     email: '',
     mobileNumber: '',
     aadharNumber: '',
-    panNumber: ''
   });
 
   const [loading, setLoading] = useState(false);
@@ -39,50 +40,46 @@ const TechnicianDashboard = ({techid, userId }) => {
     const loadTechnicianData = async () => {
       setLoading(true);
       setError('');
-  
+    
       try {
         const token = localStorage.getItem('tech_token'); // Retrieve token
         const techid = localStorage.getItem('tech_id');   // Retrieve tech_id
-        console.log('Fetching technician data with techid:', techid); // Debugging log
-  
+    
         if (!token || !techid) {
-          throw new Error('Token or TechID not found.');
+          throw new Error('Token or TechID not found. Please log in again.');
         }
-  
-        const response = await axios.get(`https://nr-agencies-project-api.onrender.com/api/auth/technician/${techid}`, {
+    
+        const response = await axios.get(`http://localhost:5000/api/auth/technician/${techid}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-  
-        console.log('API response data:', response.data); // Log the response
-  
-        const techDetails = response.data.technician; // Access the nested 'technician' object
-  
+    
+        // Accessing technician object from the response
+        const techDetails = response.data.technician;
+    
         if (!techDetails) {
-          throw new Error('Technician details not available.');
+          throw new Error('Technician details not available in response.');
         }
-  
+    
         // Update the personalDetails state with fetched data
         setPersonalDetails({
           techid: techDetails.techid || '',
-          Name: techDetails.Name || '',
+          Name: techDetails.techName || '',  // Ensure you are using the correct field names
           email: techDetails.email || '',
           mobileNumber: techDetails.phone || '',
           aadharNumber: techDetails.adharnumber || '',
-          panNumber: techDetails.pancard || ''
         });
-  
+    
       } catch (error) {
-        console.error('Failed to load technician data:', error);
-        setError('Failed to load technician data.');
+        setError(`Failed to load technician data: ${error.message}`); // More informative error
       } finally {
         setLoading(false);
       }
     };
-  
     // Load technician data on component mount
     loadTechnicianData();
   }, []);
   
+    
 
   const [activeSection, setActiveSection] = useState('dashboard');
 
@@ -90,8 +87,7 @@ const TechnicianDashboard = ({techid, userId }) => {
     if (activeSection === 'orders') {
       const fetchOrders = async () => {
         try {
-          const response = await axios.get(`https://nr-agencies-project-api.onrender.com/api/payment/users`);
-          console.log('Orders response:', response.data); // Log the response data
+          const response = await axios.get(`http://localhost:5000/api/payment/users`);
           setOrders(response.data.data || []); // Use response.data.data instead of response.data
         } catch (error) {
           console.error('Error fetching orders:', error);
@@ -107,10 +103,10 @@ const TechnicianDashboard = ({techid, userId }) => {
   const handleOrderAction = async (transactionId, actionType) => {
     try {
       if (actionType === 'complete') {
-        await axios.post(`https://nr-agencies-project-api.onrender.com/api/payment/complete/${transactionId}`);
+        await axios.post(`http://localhost:5000/api/payment/complete/${transactionId}`);
         setCompletedOrders(prevState => [...prevState, transactionId]);
       } else if (actionType === 'cancel') {
-        await axios.post(`https://nr-agencies-project-api.onrender.com/api/payment/cancel/${transactionId}`);
+        await axios.post(`http://localhost:5000/api/payment/cancel/${transactionId}`);
         setOrders(prevOrders => prevOrders.filter(order => order.transactionId !== transactionId));
       }
     } catch (error) {
@@ -194,6 +190,24 @@ const TechnicianDashboard = ({techid, userId }) => {
   };
 
   return (
+    <>
+    <style>
+        {`
+          .icon-button {
+            background-color: transparent;
+            border: none;
+            align-items:center;
+            margin-right: 5px; /* Adjust spacing between icons */
+            color: #007bff; /* Change color as needed */
+            font-size: 1.5rem; /* Adjust size as needed */
+            cursor: pointer;
+          }
+
+          .icon-button:hover {
+            color: #0056b3; /* Adjust hover color */
+          }
+        `}
+    </style>
     <Container fluid className="mobile-dashboard p-0">
       <Row className="header d-flex justify-content-between align-items-center py-3 mx-0">
         <Col xs={3} className="d-flex align-items-center">
@@ -269,61 +283,85 @@ const TechnicianDashboard = ({techid, userId }) => {
       )}
 
       {activeSection === 'orders' && (
-              <Row className="my-3 justify-content-center">
-                {error && <p className="text-danger">{error}</p>}
-                {loading ? (
-                  <p>Loading...</p>
-                ) : orders.length > 0 ? (
-                  orders.map(order => {
-                    const completedStyle = completedOrders.includes(order.transactionId)
-                      ? {
-                          filter: 'blur(2px) brightness(70%)',
-                          opacity: '0.7',
-                          pointerEvents: 'none'
+        <Row className="my-3 justify-content-center">
+          {error && <p className="text-danger">{error}</p>}
+          {loading ? (
+            <p>Loading...</p>
+          ) : orders.length > 0 ? (
+            orders.map(order => {
+              const completedStyle = completedOrders.includes(order.transactionId)
+                ? {
+                    filter: 'blur(2px) brightness(70%)',
+                    opacity: '0.7',
+                    pointerEvents: 'none',
+                  }
+                : {};
+
+              const handleViewLocation = (lat, lon) => {
+                const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lon}`;
+                window.open(googleMapsUrl, '_blank'); // Opens location in a new tab
+              };
+
+              const handleCall = (mobileNumber) => {
+                window.location.href = `tel:${mobileNumber}`; // Initiates a phone call
+              };
+
+              return (
+                <Col xs={10} md={5} lg={5} key={order.transactionId} className="mb-3">
+                  <Card style={completedStyle}>
+                    <Card.Body>
+                      <Card.Title>Order ID: {order.transactionId}</Card.Title>
+                      <Card.Text>
+                        <strong>Amount:</strong> ₹{order.amount}
+                        <br />
+                        <strong>User ID:</strong> {order.userid || 'Not provided'} <br />
+                        <strong>User Name:</strong> {order.cart[0].username || 'Not provided'}
+                        <ul>
+                          {order.cart.map((item, index) => (
+                            <li key={index}>
+                              {item.name} - ₹{item.price}
+                              <div>{item.warranty}</div>
+                              <div>{item.technology}</div>
+                              <div>{item.cleaning}</div>
+                              <div>{item.discount}</div>
+                              <div>{item.reviews}</div>
+                              <div><strong>Coordinates:</strong> Lat: {item.coordinates?.lat}, Lon: {item.coordinates?.lon}</div>
+                            </li>
+                          ))}
+                        </ul>
+                        <strong>Address:</strong> {order.address || 'No address provided'}
+                        <br />
+                        <strong>Mobile Number:</strong> {order.cart[0].mobileNumber || 'Not provided'}
+                      </Card.Text>
+                      {!completedOrders.includes(order.transactionId) && (
+                        <Button onClick={() => handleOrderAction(order.transactionId, 'complete')} className="icon-button">
+                          <FaCheck />
+                        </Button>
+                      )}
+                      <Button onClick={() => handleOrderAction(order.transactionId, 'cancel')} className="icon-button">
+                        <FaTimes />
+                      </Button>
+                      <Button
+                        onClick={() =>
+                          handleViewLocation(order.cart[0].coordinates?.lat, order.cart[0].coordinates?.lon)
                         }
-                      : {};
-
-                    return (
-                      <Col xs={10} md={5} lg={5} key={order.transactionId} className="mb-3">
-                        <Card style={completedStyle}>
-                          <Card.Body>
-                            <Card.Title>Order ID: {order.transactionId}</Card.Title>
-                            <Card.Text>
-                              <strong>Amount:</strong> ₹{order.amount}
-                              <ul>
-                                {order.cart.map((item, index) => (
-                                  <li key={index}>
-                                    {item.name} - ₹{item.price}
-                                    <div>{item.warranty}</div>
-                                    <div>{item.technology}</div>
-                                    <div>{item.cleaning}</div>
-                                    <div>{item.discount}</div>
-                                    <div>{item.reviews}</div>
-                                  </li>
-                                ))}
-                              </ul>
-                              <strong>Address:</strong> {order.address || 'No address provided'}
-                              <br />
-                            </Card.Text>
-                            {!completedOrders.includes(order.transactionId) && (
-                              <Button onClick={() => handleOrderAction(order.transactionId, 'complete')}>
-                                Mark as Completed
-                              </Button>
-                            )}
-                            <Button onClick={() => handleOrderAction(order.transactionId, 'cancel')}>
-                              Cancel Order
-                            </Button>
-                          </Card.Body>
-                        </Card>
-                      </Col>
-                    );
-                  })
-                ) : (
-                  <p>No orders available.</p>
-                )}
-              </Row>
-            )}
-
+                        className="icon-button"
+                      >
+                        <FaMapMarkerAlt />
+                      </Button>
+                      <Button onClick={() => handleCall(order.cart[0].mobileNumber)} className="icon-button">
+                        <FaPhoneAlt />
+                      </Button>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              );
+            })
+          ) : (
+            <p>No orders available.</p>
+          )}
+        </Row>
+      )}
 
 
       {activeSection === 'schedules' && (
@@ -393,28 +431,38 @@ const TechnicianDashboard = ({techid, userId }) => {
     </Row>
 
     <Modal show={showModal} onHide={handleCloseModal}>
-      <Modal.Header closeButton>
-        <Modal.Title>Technician Profile</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        {loading && <div>Loading...</div>}
-        {error && <div>{error}</div>}
-        <form>
-          <p>TechID: {personalDetails.techid}</p>
-          <p>Name: {personalDetails.Name}</p>
-          <p>Email: {personalDetails.email}</p>
-          <p>Mobile Number: {personalDetails.mobileNumber}</p>
-          <p>Aadhar Number: {personalDetails.aadharNumber}</p>
-          <p>PAN Number: {personalDetails.panNumber}</p>
-        </form>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button onClick={handleCloseModal}>Close</Button>
-        <Button onClick={handleLogout}>Logout</Button>
-      </Modal.Footer>
-    </Modal>
-
-    </Container>
+  <Modal.Header closeButton>
+    <Modal.Title>Technician Profile</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {/* Show loading spinner or message when data is being fetched */}
+    {loading && <div>Loading...</div>}
+    
+    {/* Show error message if any error occurs */}
+    {error && <div className="text-danger">{error}</div>}
+    
+    {/* Technician profile data */}
+    {!loading && !error && (
+      <form>
+        <p><strong>TechID:</strong> {personalDetails.techid}</p>
+        <p><strong>Name:</strong> {personalDetails.Name}</p>
+        <p><strong>Email:</strong> {personalDetails.email}</p>
+        <p><strong>Mobile Number:</strong> {personalDetails.mobileNumber}</p>
+        <p><strong>Aadhar Number:</strong> {personalDetails.aadharNumber}</p>
+      </form>
+    )}
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={handleCloseModal}>
+      Close
+    </Button>
+    <Button variant="danger" onClick={handleLogout}>
+      Logout
+    </Button>
+  </Modal.Footer>
+</Modal>
+</Container>
+</>
   );
 };
 

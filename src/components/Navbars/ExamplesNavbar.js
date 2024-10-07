@@ -4,8 +4,6 @@ import { Link } from "react-router-dom";
 import {
   Collapse,
   DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
   UncontrolledDropdown,
   NavbarBrand,
   Navbar,
@@ -69,7 +67,7 @@ function ExamplesNavbar() {
           </UncontrolledDropdown>
           <div className="navbar-translate">
             <NavbarBrand href="#" id="navbar-brand">
-              NR Services
+              Sree Teq’s Services
             </NavbarBrand>
             <UncontrolledTooltip target="#navbar-brand">
               Designed & Coded by USCL

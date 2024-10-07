@@ -15,6 +15,7 @@ import {
 // core components
 import ExamplesNavbar from "components/Navbars/ExamplesNavbar.js";
 import ProfilePageHeader from "components/Headers/ProfilePageHeader.js";
+import '@fortawesome/fontawesome-free/css/all.min.css';
 import DefaultFooter from "components/Footers/DefaultFooter.js";
 
 function ProfilePage() {
@@ -66,7 +67,7 @@ function ProfilePage() {
             </div>
             <h3 className="title">About me</h3>
             <h5 className="description">
-              At NR Agencies, we pride ourselves on being the go-to service
+              At Sree Teq, we pride ourselves on being the go-to service
               provider for all your air conditioning and washing machine repair
               needs. With years of experience in the industry, our mission is to
               deliver reliable, efficient, and affordable repair services to
@@ -90,7 +91,7 @@ function ProfilePage() {
                           setPills("1");
                         }}
                       >
-                        <i className="now-ui-icons design_image"></i>
+                         <i className="fas fa-home"></i>
                       </NavLink>
                     </NavItem>
                     <NavItem>
@@ -102,7 +103,7 @@ function ProfilePage() {
                           setPills("2");
                         }}
                       >
-                        <i className="now-ui-icons location_world"></i>
+                        <i className="fas fa-building"></i>
                       </NavLink>
                     </NavItem>
                     <NavItem>
@@ -114,7 +115,7 @@ function ProfilePage() {
                           setPills("3");
                         }}
                       >
-                        <i className="now-ui-icons sport_user-run"></i>
+                        <i className="fas fa-globe"></i>  
                       </NavLink>
                     </NavItem>
                   </Nav>
@@ -188,24 +189,24 @@ function ProfilePage() {
                         <img
                           alt="..."
                           className="img-raised"
-                          src={require("assets/img/bg3.jpg")}
+                          src={require("assets/img/1.jpg")}
                         ></img>
                         <img
                           alt="..."
                           className="img-raised"
-                          src={require("assets/img/bg8.jpg")}
+                          src={require("assets/img/2.jpg")}
                         ></img>
                       </Col>
                       <Col md="6">
                         <img
                           alt="..."
                           className="img-raised"
-                          src={require("assets/img/bg7.jpg")}
+                          src={require("assets/img/3.jpg")}
                         ></img>
                         <img
                           alt="..."
                           className="img-raised"
-                          src={require("assets/img/bg6.jpg")}
+                          src={require("assets/img/4.jpg")}
                         ></img>
                       </Col>
                     </Row>

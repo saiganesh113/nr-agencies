@@ -123,10 +123,10 @@ li {
 }
 .whatsapp-icon {
   position: fixed;
-  bottom: 400px;
+  bottom: 300px;
   right: 40px;
-  width: 50px;
-  height: 50px;
+  width: 75px;
+  height: 75px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -143,10 +143,10 @@ li {
 
 .phone-icon {
   position: fixed;
-  bottom: 325px;
+  bottom: 200px;
   right: 40px;
-  width: 50px;
-  height: 50px;
+  width: 75px;
+  height: 75px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -160,68 +160,3 @@ li {
   transform: scale(1.1); 
   background-color: #218838; 
 }
-.chatbot-icon {
-  position: fixed;
-  bottom: 250px;
-  right: 40px;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  color:white;
-  transition: transform 0.3s ease, background-color 0.3s ease;
-}
-
-.chatbot-icon:hover {
-  transform: scale(1.1); 
-  background-color: #0056b3; 
-}
-
-.notifications-container {
-  position: relative; /* Ensure the dropdown is positioned relative to the container */
-  display: inline-block; /* Keep the button and dropdown aligned properly */
-}
-
-.notifications-dropdown {
-  position: absolute; /* Position the dropdown absolutely within the container */
-  top: 100%; /* Position the dropdown directly below the button */
-  right: 0; /* Align the dropdown to the right edge */
-  background-color: white; /* Set a background color for visibility */
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Add a shadow for better visibility */
-  z-index: 1000; /* Ensure the dropdown appears above other elements */
-  width: 300px; /* Set a fixed width for consistency */
-  padding: 10px; /* Add some padding inside the dropdown */
-  border-radius: 5px; /* Optional: round the corners */
-}
-
-.notification-item {
-  padding: 8px 0; /* Add padding to each notification item */
-  border-bottom: 1px solid #ddd; /* Optional: separate items with a border */
-}
-
-.notification-item:last-child {
-  border-bottom: none; /* Remove the border for the last item */
-}  
-
-/* .chat-popup {
-  position: fixed;
-  bottom: 90px;
-  right: 20px;
-  width: 300px;
-  max-width: 90%;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  z-index: 1001;
-}
-
-.chat-header {
-  padding: 10px;
-  background-color: #007bff;
-  color: white;
-  border-top-left-radius: 10px;
-} */

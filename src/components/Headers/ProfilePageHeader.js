@@ -39,7 +39,7 @@ function ProfilePageHeader() {
            <img alt="..." src={require("assets/img/ryan.png")}></img>
           </div>
           <h3 className="title">About Us</h3>
-          <p className="category">Welcome to NR Agencies!</p>
+          <p className="category">Welcome to Sree Teq!</p>
           {/* <div className="content">
             <div className="social-description">
               <h2>26</h2>

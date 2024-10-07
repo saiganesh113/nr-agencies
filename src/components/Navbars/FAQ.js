@@ -17,23 +17,23 @@ const FAQ = () => {
                 </Accordion.Header>
               </Card.Header>
               <Accordion.Body>
-                NR AGENCIES understands that plans can alter. You can effectively reschedule or cancel your booking through our app or site. We give adaptability to alter your benefit as required without any hassle.
+                Sree Teq understands that plans can alter. You can effectively reschedule or cancel your booking through our app or site. We give adaptability to alter your benefit as required without any hassle.
               </Accordion.Body>
             </Card>
             <Card>
               <Card.Header>
                 <Accordion.Header eventKey="1">
-                  How can I book AC service & AC repair with NR AGENCIES?
+                  How can I book AC service & AC repair with Sree Teq?
                 </Accordion.Header>
               </Card.Header>
               <Accordion.Body>
-                Booking your AC Service & Repair with NR AGENCIES is simple and easy. You can do it through our app or website. Just select the service you require, select a helpful time space, and we'll dole out a talented proficient to take care of your AC needs.
+                Booking your AC Service & Repair with Sree Teq is simple and easy. You can do it through our app or website. Just select the service you require, select a helpful time space, and we'll dole out a talented proficient to take care of your AC needs.
               </Accordion.Body>
             </Card>
             <Card>
               <Card.Header>
                 <Accordion.Header eventKey="2">
-                  How can I reach NR AGENCIES customer support team if I have any questions or concerns?
+                  How can I reach Sree Teq customer support team if I have any questions or concerns?
                 </Accordion.Header>
               </Card.Header>
               <Accordion.Body>
@@ -57,13 +57,13 @@ const FAQ = () => {
                 </Accordion.Header>
               </Card.Header>
               <Accordion.Body>
-                Yes, NR AGENCIES allows you to request the same proficient for future services if you're fulfilled with their work. We get it the significance of building believe and compatibility with our customers.
+                Yes, Sree Teq allows you to request the same proficient for future services if you're fulfilled with their work. We get it the significance of building believe and compatibility with our customers.
               </Accordion.Body>
             </Card>
             <Card>
               <Card.Header>
                 <Accordion.Header eventKey="5">
-                  How are the experts at NR AGENCIES trained?
+                  How are the experts at Sree Teq trained?
                 </Accordion.Header>
               </Card.Header>
               <Accordion.Body>
@@ -83,7 +83,7 @@ const FAQ = () => {
             <Card>
               <Card.Header>
                 <Accordion.Header eventKey="7">
-                  Can I believe the experts sent by NR AGENCIES?
+                  Can I believe the experts sent by Sree Teq?
                 </Accordion.Header>
               </Card.Header>
               <Accordion.Body>
@@ -95,9 +95,9 @@ const FAQ = () => {
         <div className="col-md-4">
           <br />
           <h5>AC Repair & Service Near Me</h5>
-          <p>Find AC Repair & Service near you.</p>
+          <p>Find AC, Fridge and washing Machine Repair & Service near you.</p>
           <h5>You are here</h5>
-          <p>Home / AC Repair & Service</p>
+          <p>Home / AC, Fridge and washing Machine Repair & Service</p>
         </div>
       </div>
     </div>

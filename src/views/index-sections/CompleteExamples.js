@@ -12,9 +12,9 @@ function CompleteExamples() {
         <Container className="text-center">
           <Row className="justify-content-md-center">
             <Col lg="8" md="12">
-              <h2 className="title">NR Services - Instant AC Solutions</h2>
+              <h2 className="title">Sree Teq’s Services - Instant AC Solutions</h2>
               <h5 className="description">
-                NR is a platform designed to solve real-time issues related to
+                Sree Teq is a platform designed to solve real-time issues related to
                 booking AC mechanics for home services. The service aims to
                 connect users with certified and experienced AC mechanics
                 quickly and efficiently.

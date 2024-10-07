@@ -8,12 +8,12 @@ const Washingmachine = () => {
         <div className="machine">
           <div className="loader" />
         </div>
-        <h5>
-          At NR Services, we know how vital your appliances are to your daily
-          life. That's why we offer expert repair services for both ACs and
-          washing machines. Whether it's a cooling issue or a spin problem, our
-          certified technicians are ready to assist.
-        </h5>
+        <img
+          alt="..."
+          className=""
+          src={require("assets/img/fridge.gif")}
+          width="150px"
+        ></img>
         <img
           alt="..."
           className=""

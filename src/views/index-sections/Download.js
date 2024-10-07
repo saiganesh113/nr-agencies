@@ -17,9 +17,9 @@ function Download() {
         <Container>
           <Row className="justify-content-md-center">
             <Col className="text-center" lg="8" md="12">
-              <h3 className="title">NR Services</h3>
+              <h3 className="title">Sree Teq’s Services</h3>
               <h5 className="description">
-                NR Services is an innovative platform designed to streamline the
+                Sree Teq’s is an innovative platform designed to streamline the
                 process of booking professional AC mechanics for home services.
                 By connecting users with certified and experienced technicians.
               </h5>
@@ -64,12 +64,12 @@ function Download() {
                 >
                   {/* Now UI Kit PRO React */}
                 </a>
-                NR Services ensures prompt, reliable, and efficient solutions
+                Sree Teq’s Services ensures prompt, reliable, and efficient solutions
                 for all AC-related needs. From installation to maintenance and
                 repair, our platform offers a seamless experience, complete with
                 real-time bookings, secure payments, and customer reviews, all
                 within a user-friendly interface. Our commitment to quality and
-                convenience makes NR Services the go-to solution for hassle-free
+                convenience makes Sree Teq’s Services the go-to solution for hassle-free
                 AC servicing.
               </h5>
             </Col>

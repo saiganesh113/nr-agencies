@@ -19,8 +19,7 @@ import ExamplesNavbar from "components/Navbars/ExamplesNavbar.js";
 import TransparentFooter from "components/Footers/TransparentFooter.js";
 import { jwtDecode } from "jwt-decode"; // Correct import for jwt-decode
 
-// Adjust as necessary
-const API_BASE_URL = `https://nr-agencies-project-api.onrender.com`;
+const API_BASE_URL = `http://localhost:5000/api/auth`; // Adjust as necessary
 
 function LoginPage() {
   const [userId, setUserId] = useState(""); // User ID state
@@ -56,8 +55,8 @@ function LoginPage() {
     try {
         // Determine the login endpoint and payload based on the role
         const endpoint = role === "user"
-            ? `${API_BASE_URL}/api/auth/login-user`
-            : `${API_BASE_URL}/api/auth/login-technician`;
+            ? `${API_BASE_URL}/login-user`
+            : `${API_BASE_URL}/login-technician`;
 
         const payload = role === "user"
             ? { userid: userId, password }
@@ -65,8 +64,7 @@ function LoginPage() {
 
         // Make login request to backend
         const response = await axios.post(endpoint, payload);
-
-        console.log(response.data); // Log the response to inspect its structure
+ // Log the response to inspect its structure
 
         // Extract token and ID from the response
         const { token, user, techId } = response.data;
@@ -135,7 +133,7 @@ function LoginPage() {
                         </InputGroupText>
                       </InputGroupAddon>
                       <Input
-                        placeholder="ID Here"
+                        placeholder="User ID"
                         type="text"
                         value={userId}
                         onChange={(e) => setUserId(e.target.value)}

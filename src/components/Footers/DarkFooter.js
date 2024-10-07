@@ -12,46 +12,49 @@ function DarkFooter() {
           <ul>
             <li>
               <a
-                
+                href="#"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 USCL 
               </a>
             </li>
             <li>
               <a
-               
+                href="/Sree Teq's.Privacy Policy.pdf"
                 target="_blank"
+                rel="noopener noreferrer"
               >
-               </a>
+                Privacy Policy
+              </a>
             </li>
             <li>
               <a
-              
+                href="/Sree teq's.Terms and Conditions.pdf"
                 target="_blank"
+                rel="noopener noreferrer"
               >
-                
+                Terms and Conditions
               </a>
             </li>
           </ul>
         </nav>
         <div className="copyright" id="copyright">
-          © {new Date().getFullYear()}, Designed {" "}
+          © {new Date().getFullYear()}, Designed{" "}
           <a
-            href=""
+            href="#"
             target="_blank"
+            rel="noopener noreferrer"
           >
-            & 
-            <a> </a>
+            & Coded by{" "}
+            <a
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              USCL
+            </a>
           </a>
-            Coded by{" "}
-          <a
-            href=""
-            target="_blank"
-          >
-            USCL
-          </a>
-          .
         </div>
       </Container>
     </footer>

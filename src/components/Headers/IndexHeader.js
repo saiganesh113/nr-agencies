@@ -38,7 +38,7 @@ function IndexHeader() {
               className="n-logo"
               src={require("assets/img/now-logo.png")}
             ></img>
-            <h1 className="h1-seo">NR Services</h1>
+            <h1 className="h1-seo">Sree Teq’s Services</h1>
             <h3>On-Demand AC Mechanic Solutions</h3>
           </div>
           <h6 className="category category-absolute">

@@ -1,11 +1,17 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 // reactstrap components
 import { Button, Container, Row } from "reactstrap";
 
 // core components
 
 function Examples() {
+  const navigate = useNavigate();
+
+  const handleNavigate = () => {
+    navigate('/homeservices'); // Navigate to the desired route
+  };
   return (
     <>
       <div className="section section-examples" data-background-color="black">
@@ -21,14 +27,13 @@ function Examples() {
                 ></img>
               </a>
               <Button
-                className="btn-round"
-                color="default"
-                // to="/landing-page"
-                outline
-                tag={Link}
-              >
-               Home Services
-              </Button>
+              className="btn-round"
+              color="default"
+              outline
+              onClick={handleNavigate} // Trigger navigation on button click
+            >
+              Scheduled Services
+            </Button>
             </div>
             <div className="col">
               <a href="examples/profile-page.html" target="_blank">
@@ -39,14 +44,13 @@ function Examples() {
                 ></img>
               </a>
               <Button
-                className="btn-round"
-                color="default"
-                // to="/profile-page"
-                outline
-                tag={Link}
-              >
-              Instant AC Repair
-              </Button>
+              className="btn-round"
+              color="default"
+              outline
+              onClick={() => alert('Use WhatsApp or call for instant AC repair. Additional charges apply for urgent services.')}
+            >
+              Instant Services
+            </Button>
             </div>
           </Row>
         </Container>
