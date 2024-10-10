@@ -16,6 +16,7 @@ import {
   Container,
   Row,
   Col,
+  Spinner
 } from "reactstrap";
 import axios from "axios";
 
@@ -38,6 +39,7 @@ function SignUp() {
 
   const [role, setRole] = useState("user");
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false); // For loading animation
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -104,6 +106,7 @@ function SignUp() {
       return;
     }
 
+    setLoading(true); // Start loading animation
     const endpoint = role === "user"
       ? `https://sreeteqs-api.onrender.com/api/auth/register-user`
       : `https://sreeteqs-api.onrender.com/api/auth/register-technician`;
@@ -119,16 +122,18 @@ function SignUp() {
       : {
         techid: formData.techId,
         techName: formData.techName,
-        email: formData.techEmail, // Match the backend key
+        email: formData.techEmail,
         phone: formData.techPhone,
         adharnumber: formData.aadharNumber,
-        password: formData.techPassword, // Use techPassword for payload
+        password: formData.techPassword,
       };
 
     try {
       const response = await axios.post(endpoint, payload);
+      setLoading(false); // Stop loading animation
       navigate("/login-page");
     } catch (error) {
+      setLoading(false); // Stop loading animation in case of an error
       console.error("Error during signup:", error.response?.data?.message || "Signup failed");
       setErrors({ submit: error.response?.data?.message || "Signup failed. Please try again." });
     }
@@ -276,7 +281,7 @@ function SignUp() {
                       </InputGroupAddon>
                       <Input
                         name="techId"
-                        placeholder="Tech ID..."
+                        placeholder="Technician ID..."
                         type="text"
                         onChange={handleChange}
                         value={formData.techId}
@@ -331,7 +336,7 @@ function SignUp() {
                     <InputGroup className={"no-border"}>
                       <InputGroupAddon addonType="prepend">
                         <InputGroupText>
-                          <i className="now-ui-icons ui-1_lock-circle-open"></i>
+                          <i className="now-ui-icons business_badge"></i>
                         </InputGroupText>
                       </InputGroupAddon>
                       <Input
@@ -375,18 +380,19 @@ function SignUp() {
                     </InputGroup>
                   </>
                 )}
-                {errors.submit && <div className="text-danger">{errors.submit}</div>}
+
+                {errors.submit && <div className="text-danger text-center">{errors.submit}</div>}
               </CardBody>
               <CardFooter className="text-center">
-                  <Button className="btn-fill" color="primary" type="submit">
-                    Sign Up
-                  </Button>
-                  <Row className="text-center">
+                <Button type="submit" className="btn-neutral btn-round" color="primary" size="lg">
+                  {loading ? <Spinner size="sm" color="light" /> : "Sign Up"}
+                </Button>
+                <Row className="text-center">
                   <Col>
                   <Link to="/login-page">Already have an account? Login</Link>
                   </Col>
                   </Row>
-                </CardFooter>
+              </CardFooter>
             </Form>
           </Card>
         </Row>

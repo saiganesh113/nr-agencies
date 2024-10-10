@@ -1441,7 +1441,7 @@ const handleRemoveservicefromCart = (selectedServiceId) => {
                 <img
                   src={`${process.env.PUBLIC_URL}${service.image}`}
                   alt={service.name}
-                  style={{ height: '250px', width: '200px', objectFit: 'cover', marginLeft: '20px' }}
+                  style={{ height: '250px', width: '150px', objectFit: 'cover', marginLeft: '20px' }}
                 />
               </div>
               <div className="card-footer text-center bg-light p-2">
@@ -1493,7 +1493,7 @@ const handleRemoveservicefromCart = (selectedServiceId) => {
                   <img
                     src={`${process.env.PUBLIC_URL}${repair.image}`}
                     alt={repair.name}
-                    style={{ height: '250px', width: '200px', objectFit: 'cover', marginLeft: '20px' }}
+                    style={{ height: '250px', width: '150px', objectFit: 'cover', marginLeft: '20px' }}
                   />
                 </div>
                 <div className="card-footer text-center bg-light p-2">
@@ -1544,7 +1544,7 @@ const handleRemoveservicefromCart = (selectedServiceId) => {
                   <img
                     src={`${process.env.PUBLIC_URL}${installation.image}`}
                     alt={installation.name}
-                    style={{ height: '250px', width: '200px', objectFit: 'cover', marginLeft: '20px' }}
+                    style={{ height: '250px', width: '150px', objectFit: 'cover', marginLeft: '20px' }}
                   />
                 </div>
                 <div className="card-footer text-center bg-light p-2">
@@ -1871,7 +1871,7 @@ const handleRemoveservicefromCart = (selectedServiceId) => {
                 <img
                   src={`${process.env.PUBLIC_URL}${sideBySideDoor.image}`}
                   alt={sideBySideDoor.name}
-                  style={{ height: '250px', width: '200px', objectFit: 'cover', marginLeft: '20px' }}
+                  style={{ height: '250px', width: '150px', objectFit: 'cover', marginLeft: '20px' }}
                 />
               </div>
               <div className="d-flex justify-content-between align-items-center p-2">

@@ -17,17 +17,19 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import ExamplesNavbar from "components/Navbars/ExamplesNavbar.js";
 import TransparentFooter from "components/Footers/TransparentFooter.js";
-import { jwtDecode } from "jwt-decode"; // Correct import for jwt-decode
+import { jwtDecode } from "jwt-decode";
+import ClipLoader from "react-spinners/ClipLoader"; // Import the animated spinner
 
-const API_BASE_URL = `https://sreeteqs-api.onrender.com/api/auth`; // Adjust as necessary
+const API_BASE_URL = `https://sreeteqs-api.onrender.com/api/auth`;
 
 function LoginPage() {
-  const [userId, setUserId] = useState(""); // User ID state
-  const [password, setPassword] = useState(""); // Password state
-  const [firstFocus, setFirstFocus] = useState(false); // Input focus states
+  const [userId, setUserId] = useState("");
+  const [password, setPassword] = useState("");
+  const [firstFocus, setFirstFocus] = useState(false);
   const [lastFocus, setLastFocus] = useState(false);
-  const [error, setError] = useState(null); // Error state
-  const [role, setRole] = useState("user"); // State for role selection
+  const [error, setError] = useState(null);
+  const [role, setRole] = useState("user");
+  const [loading, setLoading] = useState(false); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,58 +46,52 @@ function LoginPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError(null); // Clear previous errors
+    setError(null); 
 
-    // Check if required fields are filled
     if (!userId || !password) {
-        setError("Please fill in all fields.");
-        return;
+      setError("Please fill in all fields.");
+      return;
     }
+
+    setLoading(true); 
 
     try {
-        // Determine the login endpoint and payload based on the role
-        const endpoint = role === "user"
-            ? `${API_BASE_URL}/login-user`
-            : `${API_BASE_URL}/login-technician`;
+      const endpoint = role === "user"
+        ? `${API_BASE_URL}/login-user`
+        : `${API_BASE_URL}/login-technician`;
 
-        const payload = role === "user"
-            ? { userid: userId, password }
-            : { techid: userId, password };
+      const payload = role === "user"
+        ? { userid: userId, password }
+        : { techid: userId, password };
 
-        // Make login request to backend
-        const response = await axios.post(endpoint, payload);
- // Log the response to inspect its structure
+      const response = await axios.post(endpoint, payload);
+      const { token, user, techId } = response.data;
+      const decodedToken = jwtDecode(token);
+      const id = role === "user"
+        ? user?.userid || decodedToken.userId
+        : techId || decodedToken.techId;
 
-        // Extract token and ID from the response
-        const { token, user, techId } = response.data;
-        const decodedToken = jwtDecode(token);
-        const id = role === "user"
-            ? user?.userid || decodedToken.userId
-            : techId || decodedToken.techId;
+      if (token && id) {
+        localStorage.setItem(role === "user" ? "user_token" : "tech_token", token);
+        localStorage.setItem(role === "user" ? "user_id" : "tech_id", id);
 
-        if (token && id) {
-            // Store token and ID in localStorage
-            localStorage.setItem(role === "user" ? "user_token" : "tech_token", token);
-            localStorage.setItem(role === "user" ? "user_id" : "tech_id", id);
-
-            // Clear any previously stored values that are not relevant to the current role
-            if (role === "user") {
-                localStorage.removeItem("tech_id");
-            } else {
-                localStorage.removeItem("user_id");
-            }
-
-            // Redirect based on the role
-            navigate(role === "user" ? "/userdashboard" : "/techdashboard");
+        if (role === "user") {
+          localStorage.removeItem("tech_id");
         } else {
-            setError("Invalid User ID or password. Please try again.");
+          localStorage.removeItem("user_id");
         }
+
+        navigate(role === "user" ? "/userdashboard" : "/techdashboard");
+      } else {
+        setError("Invalid User ID or password. Please try again.");
+      }
     } catch (error) {
-        // Handle the login error
-        console.error("Login error:", error.response ? error.response.data : error.message);
-        setError(error.response ? error.response.data.message : "An error occurred. Please try again.");
+      console.error("Login error:", error.response ? error.response.data : error.message);
+      setError(error.response ? error.response.data.message : "An error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
-};
+  };
 
   return (
     <>
@@ -162,7 +158,6 @@ function LoginPage() {
                       />
                     </InputGroup>
 
-                    {/* Role selection */}
                     <div className="text-center my-3">
                       <label>
                         <input
@@ -196,8 +191,9 @@ function LoginPage() {
                       color="info"
                       size="lg"
                       type="submit"
+                      disabled={loading}
                     >
-                      Get Started
+                      {loading ? <ClipLoader color="#ffffff" size={25} /> : "Get Started"}
                     </Button>
                     <div className="text-center mt-3">
                       <a href="/signup-page" className="link">
@@ -224,4 +220,5 @@ function LoginPage() {
     </>
   );
 }
+
 export default LoginPage;
