@@ -49,7 +49,7 @@ const TechnicianDashboard = ({techid, userId }) => {
           throw new Error('Token or TechID not found. Please log in again.');
         }
     
-        const response = await axios.get(`https://sreeteqs-api.onrender.com/api/auth/technician/${techid}`, {
+        const response = await axios.get(`http://localhost:5000/api/auth/technician/${techid}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
     
@@ -87,7 +87,7 @@ const TechnicianDashboard = ({techid, userId }) => {
     if (activeSection === 'orders') {
       const fetchOrders = async () => {
         try {
-          const response = await axios.get(`https://sreeteqs-api.onrender.com/api/payment/users`);
+          const response = await axios.get(`http://localhost:5000/api/payment/users`);
           setOrders(response.data.data || []); // Use response.data.data instead of response.data
         } catch (error) {
           console.error('Error fetching orders:', error);
@@ -103,10 +103,10 @@ const TechnicianDashboard = ({techid, userId }) => {
   const handleOrderAction = async (transactionId, actionType) => {
     try {
       if (actionType === 'complete') {
-        await axios.post(`https://sreeteqs-api.onrender.com/api/payment/complete/${transactionId}`);
+        await axios.post(`http://localhost:5000/api/payment/complete/${transactionId}`);
         setCompletedOrders(prevState => [...prevState, transactionId]);
       } else if (actionType === 'cancel') {
-        await axios.post(`https://sreeteqs-api.onrender.com/api/payment/cancel/${transactionId}`);
+        await axios.post(`http://localhost:5000/api/payment/cancel/${transactionId}`);
         setOrders(prevOrders => prevOrders.filter(order => order.transactionId !== transactionId));
       }
     } catch (error) {

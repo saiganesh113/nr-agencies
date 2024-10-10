@@ -11,7 +11,7 @@ const Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://sreeteqs-api.onrender.com/api/superadmin/login', {
+      const response = await axios.post('http://localhost:5000/api/superadmin/login', {
         email,
         password,
       });

@@ -26,13 +26,13 @@ const Adminperformance = () => {
     useEffect(() => {
         const fetchData = async () => {
           try {
-            const userResponse = await axios.get('https://sreeteqs-api.onrender.com/api/auth/users');
+            const userResponse = await axios.get('http://localhost:5000/api/auth/users');
             setUsers(userResponse.data.users);
       
-            const technicianResponse = await axios.get('https://sreeteqs-api.onrender.com/api/auth/technicians');
+            const technicianResponse = await axios.get('http://localhost:5000/api/auth/technicians');
             setTechnicians(technicianResponse.data.technicians);
       
-            const paymentResponse = await axios.get('https://sreeteqs-api.onrender.com/api/payment/users');
+            const paymentResponse = await axios.get('http://localhost:5000/api/payment/users');
             setPayments(paymentResponse.data.data);
           } catch (error) {
             console.error('Error fetching data:', error);

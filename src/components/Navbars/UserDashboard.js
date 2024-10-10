@@ -165,7 +165,7 @@ useEffect(() => {
       // Fetch user data if both userId and token are valid
       if (userId) {
         setLoading(true);
-        const response = await axios.get(`https://sreeteqs-api.onrender.com/api/auth/user/${userId}`, {
+        const response = await axios.get(`http://localhost:5000/api/auth/user/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -221,10 +221,10 @@ const handleLogout = () => {
         installationsResponse,
         notificationsResponse // Add the response for notifications
       ] = await Promise.all([
-        axios.get('https://sreeteqs-api.onrender.com/api/services'),
-        axios.get('https://sreeteqs-api.onrender.com/api/repairs'),
-        axios.get('https://sreeteqs-api.onrender.com/api/installations'),
-        axios.get('https://sreeteqs-api.onrender.com/api/notifications') // Corrected endpoint
+        axios.get('http://localhost:5000/api/services'),
+        axios.get('http://localhost:5000/api/repairs'),
+        axios.get('http://localhost:5000/api/installations'),
+        axios.get('http://localhost:5000/api/notifications') // Corrected endpoint
       ]);
   
       // Log the fetched data for debugging
@@ -285,7 +285,7 @@ const handleLogout = () => {
       }
   
       // Step 1: Process payment
-      const paymentResponse = await axios.post('https://sreeteqs-api.onrender.com/api/Payment', {
+      const paymentResponse = await axios.post('http://localhost:5000/api/Payment', {
         userid,
         amount: totalAmount,
         address,
@@ -298,7 +298,7 @@ const handleLogout = () => {
       }
   
       // Step 2: Send WhatsApp invoice
-      const invoiceResponse = await axios.post('https://sreeteqs-api.onrender.com/api/sendWhatsAppInvoice', {
+      const invoiceResponse = await axios.post('http://localhost:5000/api/sendWhatsAppInvoice', {
         userid,
         amount: totalAmount,
         address,
@@ -353,6 +353,8 @@ const handleLogout = () => {
     doc.text(`User ID: ${userid}`, 10, yPos);
     const transactionId = `${new Date().toISOString().replace(/[^0-9]/g, "")}`;
     doc.text(`Transaction ID: ${transactionId}`, 10, yPos + 10);
+    
+    yPos += 20;
     // Add any slot details here if available for each item:
     cart.forEach((item) => {
       if (item.slotBookedDate) {
@@ -364,7 +366,7 @@ const handleLogout = () => {
     });
   
     // Add space before table header
-    yPos += 20;
+    yPos += 30;
   
     // Add the table header for item description
     doc.setFontSize(14);
@@ -385,7 +387,7 @@ const handleLogout = () => {
     });
   
     // Add space before subtotal and other totals
-    yPos += 20;
+    yPos += 10;
   
     // Add subtotal, discount, and total amount
     doc.text(`Subtotal: ₹${subtotal}`, 100, yPos);
@@ -394,7 +396,7 @@ const handleLogout = () => {
     doc.text(`Total Amount: ₹${totalAmount}`, 100, yPos + 20);
   
     // Add space before footer
-    yPos += 20;
+    yPos += 40;
   
     // Add footer with user address
     doc.setFontSize(10);
@@ -467,7 +469,7 @@ const handleLogout = () => {
         setShowSlotModal(false);
         setShowCartModal(true);
 
-        await axios.post('https://sreeteqs-api.onrender.com/api/carts', cartItem);
+        await axios.post('http://localhost:5000/api/carts', cartItem);
     } catch (error) {
         console.error('Error during booking process:', error);
     }
@@ -563,7 +565,7 @@ const handleLogout = () => {
             throw new Error('Userid is required to fetch cart history');
         }
 
-        const response = await axios.get(`https://sreeteqs-api.onrender.com/api/payment/user/${userid}`);
+        const response = await axios.get(`http://localhost:5000/api/payment/user/${userid}`);
         if (response.data.status === 'success') {
             const cartHistory = response.data.data.map((payment) => {
                 return {
@@ -701,7 +703,7 @@ const [wuninstallations, setWuninstallations] = useState([]);
 useEffect(() => {
   const fetchWashRepairs = async () => {
     try {
-      const response = await axios.get('https://sreeteqs-api.onrender.com/api/wrepairs');
+      const response = await axios.get('http://localhost:5000/api/wrepairs');
       setWrepairs(response.data); // Set the repair services from the backend
     } catch (error) {
       console.error('Error fetching repairs:', error);
@@ -710,7 +712,7 @@ useEffect(() => {
 
   const fetchWashInstallations = async () => {
     try {
-      const response = await axios.get('https://sreeteqs-api.onrender.com/api/winstallations');
+      const response = await axios.get('http://localhost:5000/api/winstallations');
       setWinstallations(response.data); // Set the installation services from the backend
     } catch (error) {
       console.error('Error fetching installations:', error);
@@ -719,7 +721,7 @@ useEffect(() => {
 
   const fetchWashUninstallations = async () => {
     try {
-      const response = await axios.get('https://sreeteqs-api.onrender.com/api/wuninstallations');
+      const response = await axios.get('http://localhost:5000/api/wuninstallations');
       setWuninstallations(response.data); // Set the uninstallation services from the backend
     } catch (error) {
       console.error('Error fetching uninstallations:', error);
@@ -754,7 +756,7 @@ const handleRemoveservicefromCart = (selectedServiceId) => {
   useEffect(() => {
     const fetchSingleDoors = async () => {
       try {
-        const response = await axios.get('https://sreeteqs-api.onrender.com/api/singledoor');
+        const response = await axios.get('http://localhost:5000/api/singledoor');
         setSingleDoors(response.data); // Assuming response.data is an array
       } catch (error) {
         console.error('Error fetching single door refrigerators:', error);
@@ -767,7 +769,7 @@ const handleRemoveservicefromCart = (selectedServiceId) => {
   useEffect(() => {
     const fetchDoubleDoors = async () => {
       try {
-        const response = await axios.get('https://sreeteqs-api.onrender.com/api/doubledoor');
+        const response = await axios.get('http://localhost:5000/api/doubledoor');
         setDoubleDoors(response.data); // Assuming response.data is an array
       } catch (error) {
         console.error('Error fetching single door refrigerators:', error);
@@ -780,7 +782,7 @@ const handleRemoveservicefromCart = (selectedServiceId) => {
   useEffect(() => {
     const fetchsideBySideDoors = async () => {
       try {
-        const response = await axios.get('https://sreeteqs-api.onrender.com/api/sidedoor');
+        const response = await axios.get('http://localhost:5000/api/sidedoor');
         setSideBySideDoors(response.data); // Assuming response.data is an array
       } catch (error) {
         console.error('Error fetching single door refrigerators:', error);
