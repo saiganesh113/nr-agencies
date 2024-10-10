@@ -19,7 +19,7 @@ import ExamplesNavbar from "components/Navbars/ExamplesNavbar.js";
 import TransparentFooter from "components/Footers/TransparentFooter.js";
 import { jwtDecode } from "jwt-decode"; // Correct import for jwt-decode
 
-const API_BASE_URL = `https://sree-teq-project-api.onrender.com/api/auth`; // Adjust as necessary
+const API_BASE_URL = `https://sreeteqs-api.onrender.com/api/auth`; // Adjust as necessary
 
 function LoginPage() {
   const [userId, setUserId] = useState(""); // User ID state

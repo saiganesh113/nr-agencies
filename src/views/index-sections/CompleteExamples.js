@@ -13,7 +13,7 @@ function CompleteExamples() {
           <Row className="justify-content-md-center">
             <Col lg="8" md="12">
               <h2 className="title">Sree Teq’s Services - Instant AC Solutions</h2>
-              <h5 className="description">
+              <h5 className="paragraph">
                 Sree Teq is a platform designed to solve real-time issues related to
                 booking AC mechanics for home services. The service aims to
                 connect users with certified and experienced AC mechanics

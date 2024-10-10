@@ -12,13 +12,13 @@ const Washingmachine = () => {
           alt="..."
           className=""
           src={require("assets/img/fridge.gif")}
-          width="150px"
+          width="100px"
         ></img>
         <img
           alt="..."
           className=""
           src={require("assets/img/air-conditioneri.png")}
-          width="190px"
+          width="120px"
         ></img>
       </div>
     </>

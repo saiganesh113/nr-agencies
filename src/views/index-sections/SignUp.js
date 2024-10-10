@@ -105,8 +105,8 @@ function SignUp() {
     }
 
     const endpoint = role === "user"
-      ? `https://sree-teq-project-api.onrender.com/api/auth/register-user`
-      : `https://sree-teq-project-api.onrender.com/api/auth/register-technician`;
+      ? `https://sreeteqs-api.onrender.com/api/auth/register-user`
+      : `https://sreeteqs-api.onrender.com/api/auth/register-technician`;
 
     const payload = role === "user"
       ? {

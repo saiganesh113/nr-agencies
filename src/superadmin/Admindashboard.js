@@ -30,6 +30,7 @@ function AdminDashboard() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    console.log('Location added:', branchName, latitude, longitude, numberOfCounters);
   };
 
   const handleProfileClick = () => setShowModal(true);

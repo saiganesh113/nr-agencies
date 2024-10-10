@@ -26,13 +26,13 @@ const Adminperformance = () => {
     useEffect(() => {
         const fetchData = async () => {
           try {
-            const userResponse = await axios.get('https://sree-teq-project-api.onrender.com/api/auth/users');
+            const userResponse = await axios.get('https://sreeteqs-api.onrender.com/api/auth/users');
             setUsers(userResponse.data.users);
       
-            const technicianResponse = await axios.get('https://sree-teq-project-api.onrender.com/api/auth/technicians');
+            const technicianResponse = await axios.get('https://sreeteqs-api.onrender.com/api/auth/technicians');
             setTechnicians(technicianResponse.data.technicians);
       
-            const paymentResponse = await axios.get('https://sree-teq-project-api.onrender.com/api/payment/users');
+            const paymentResponse = await axios.get('https://sreeteqs-api.onrender.com/api/payment/users');
             setPayments(paymentResponse.data.data);
           } catch (error) {
             console.error('Error fetching data:', error);
@@ -54,6 +54,7 @@ const Adminperformance = () => {
     const handleSave = () => {
         setEditMode(false);
         setShowModal(false);
+        console.log('Personal Details Saved:', personalDetails);
     };
 
     const handleChange = (e) => {

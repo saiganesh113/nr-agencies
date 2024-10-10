@@ -2,15 +2,13 @@ import React, { useState,useEffect } from 'react';
 import { Pie } from 'react-chartjs-2';
 import './UserDashboard.css';
 import axios from "axios";
+import { jsPDF } from 'jspdf';
 // import AuthStore from '../Navbars/AuthStore';
 import 'assets/css/bootstrap.min.css';
 import { Link, } from 'react-scroll';
 import { Card, CardBody, CardTitle, CardText, Button} from 'react-bootstrap'; 
 import { Container, Row, Col} from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faScrewdriverWrench } from '@fortawesome/free-solid-svg-icons';
-import { faToolbox } from '@fortawesome/free-solid-svg-icons';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import FAQ from './FAQ';
 import { faBell,faUserCircle,faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 import { Modal, Badge } from 'react-bootstrap';
@@ -167,7 +165,7 @@ useEffect(() => {
       // Fetch user data if both userId and token are valid
       if (userId) {
         setLoading(true);
-        const response = await axios.get(`https://sree-teq-project-api.onrender.com/api/auth/user/${userId}`, {
+        const response = await axios.get(`https://sreeteqs-api.onrender.com/api/auth/user/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -223,10 +221,10 @@ const handleLogout = () => {
         installationsResponse,
         notificationsResponse // Add the response for notifications
       ] = await Promise.all([
-        axios.get('https://sree-teq-project-api.onrender.com/api/services'),
-        axios.get('https://sree-teq-project-api.onrender.com/api/repairs'),
-        axios.get('https://sree-teq-project-api.onrender.com/api/installations'),
-        axios.get('https://sree-teq-project-api.onrender.com/api/notifications') // Corrected endpoint
+        axios.get('https://sreeteqs-api.onrender.com/api/services'),
+        axios.get('https://sreeteqs-api.onrender.com/api/repairs'),
+        axios.get('https://sreeteqs-api.onrender.com/api/installations'),
+        axios.get('https://sreeteqs-api.onrender.com/api/notifications') // Corrected endpoint
       ]);
   
       // Log the fetched data for debugging
@@ -252,6 +250,8 @@ const handleLogout = () => {
     fetchData();
   }, []);
 
+
+
   const handleProceedToPay = async () => {
     try {
       const userid = localStorage.getItem('user_id'); // Retrieve user_id from localStorage
@@ -270,13 +270,11 @@ const handleLogout = () => {
         return total + itemPrice;
       }, 0);
   
-  
-      // Apply the discount of ₹100 for second item onwards
+      // Apply the discount of ₹100 for the second item onwards
       const discount = cart.length > 1 ? 100 : 0;
   
       // Calculate the final total amount after discount
       const totalAmount = subtotal - discount;
-  
   
       if (totalAmount <= 0) {
         throw new Error('Total amount must be greater than zero');
@@ -286,59 +284,127 @@ const handleLogout = () => {
         throw new Error('Address is required for payment processing');
       }
   
-      // Razorpay Integration
-      var options = {
-        key: "rzp_test_d4pLXa7gyQuEX9", // Your Razorpay Key
-        key_secret: "qjlkJruOyIz689EqqqMK2pNn", // Razorpay Secret
-        amount: totalAmount * 100, // Razorpay accepts amount in paise
-        currency: "INR",
-        name: "NR Agencies", // Your company/service name
-        description: "Payment for AC Repair Services",
-        handler: async function (response) {
-          const razorpayPaymentId = response.razorpay_payment_id;
+      // Step 1: Process payment
+      const paymentResponse = await axios.post('https://sreeteqs-api.onrender.com/api/Payment', {
+        userid,
+        amount: totalAmount,
+        address,
+        cart,
+        transactionId: `${new Date().toISOString().replace(/[^0-9]/g, "")}` // Unique transactionId based on current date and time
+      });
   
-          alert(`Payment Successful! Payment ID: ${razorpayPaymentId}`);
+      if (paymentResponse.data.status !== 'success') {
+        throw new Error('Payment processing failed');
+      }
   
-          // Send the transactionId (razorpayPaymentId) to the backend
-          const paymentResponse = await axios.post('https://sree-teq-project-api.onrender.com/api/payment', {
-            userid,
-            amount: totalAmount,
-            address,
-            cart,
-            transactionId: razorpayPaymentId,  // Pass Razorpay payment ID to backend
-          });
+      // Step 2: Send WhatsApp invoice
+      const invoiceResponse = await axios.post('https://sreeteqs-api.onrender.com/api/sendWhatsAppInvoice', {
+        userid,
+        amount: totalAmount,
+        address,
+        cart,
+        discount,
+        subtotal,
+      });
   
-          setNotifications(prevNotifications => [
-            ...prevNotifications,
-            {
-              id: new Date().getTime(),
-              message: 'Thank you for choosing our services. Payment was successful.',
-            },
-          ]);
+      if (invoiceResponse.data.success) {
+        setNotifications(prevNotifications => [
+          ...prevNotifications,
+          {
+            id: new Date().getTime(),
+            message: 'Thank you for choosing our services. Invoice sent successfully via WhatsApp.',
+          },
+        ]);
   
-          setCart([]);  // Clear cart after successful payment
-        },
-        prefill: {
-          name: "Kushwinth", // Prefill customer details (can be dynamic)
-          email: "testmail@gmail.com",
-          contact: "9876543210"
-        },
-        notes: {
-          address: "Razorpay Corporate Office"
-        },
-        theme: {
-          color: "#3399cc"
-        }
-      };
+        // Clear cart after sending the invoice
+        setCart([]);
   
-      var pay = new window.Razorpay(options);
-      pay.open();
-  
+        // Step 3: Generate PDF Invoice
+        generateInvoicePDF(userid, subtotal, discount, totalAmount, cart, address);
+      } else {
+        throw new Error('Failed to send invoice');
+      }
     } catch (error) {
-      console.error('Error during payment process:', error.response ? error.response.data : error.message);
-      setError('An error occurred during the payment process.');
+      console.error('Error during payment or invoice processing:', error.response ? error.response.data : error.message);
+      setError('An error occurred while processing the payment or sending the invoice.');
     }
   };
+  
+  const generateInvoicePDF = (userid, subtotal, discount, totalAmount, cart, address) => {
+    // Initialize the jsPDF document
+    const doc = new jsPDF();
+  
+    // Add Company Name or Title
+    doc.setFontSize(28);
+    doc.text('SREE TEQ', 105, 20, null, null, 'center');
+    
+    // Add a space between title and invoice text
+    let yPos = 40; // Start from a position below the title
+    
+    // Add Title
+    doc.setFontSize(20);
+    doc.text('Invoice', 105, yPos, null, null, 'center');
+    
+    // Add space
+    yPos += 20;
+  
+    // Add user and transaction details
+    doc.setFontSize(12);
+    doc.text(`User ID: ${userid}`, 10, yPos);
+    const transactionId = `${new Date().toISOString().replace(/[^0-9]/g, "")}`;
+    doc.text(`Transaction ID: ${transactionId}`, 10, yPos + 10);
+    // Add any slot details here if available for each item:
+    cart.forEach((item) => {
+      if (item.slotBookedDate) {
+        doc.text(`Slot Booked Date: ${formatDate(item.slotBookedDate)}`, 10, yPos);
+      }
+      if (item.slotBookedTime) {
+        doc.text(`Slot Booked Time: ${formatTime(item.slotBookedTime)}`, 10, yPos + 10);
+      }
+    });
+  
+    // Add space before table header
+    yPos += 20;
+  
+    // Add the table header for item description
+    doc.setFontSize(14);
+    doc.text('Description', 10, yPos);
+    doc.text('Qty', 110, yPos);
+    doc.text('Price', 130, yPos);
+    doc.text('Total', 170, yPos);
+  
+    // Add items to the invoice
+    yPos += 10;
+    cart.forEach((item, index) => {
+      doc.setFontSize(12);
+      doc.text(item.name, 10, yPos);
+      doc.text(String(item.qty || 1), 110, yPos);
+      doc.text(`₹${item.price}`, 130, yPos);
+      doc.text(`₹${item.price}`, 170, yPos);
+      yPos += 10; // Adjust position for the next row
+    });
+  
+    // Add space before subtotal and other totals
+    yPos += 20;
+  
+    // Add subtotal, discount, and total amount
+    doc.text(`Subtotal: ₹${subtotal}`, 100, yPos);
+    doc.text(`Discount: ₹${discount}`, 100, yPos + 10);
+    doc.setFontSize(14);
+    doc.text(`Total Amount: ₹${totalAmount}`, 100, yPos + 20);
+  
+    // Add space before footer
+    yPos += 20;
+  
+    // Add footer with user address
+    doc.setFontSize(10);
+    doc.text(`Address: ${address}`, 10, yPos);
+    doc.text(`Payment Status: Success`, 10, yPos + 10);
+  
+    // Save the generated PDF and download it automatically
+    doc.save(`Invoice_${transactionId}.pdf`);
+  };
+
   
   const handleConfirmBooking = async () => {
     try {
@@ -401,7 +467,7 @@ const handleLogout = () => {
         setShowSlotModal(false);
         setShowCartModal(true);
 
-        await axios.post('https://sree-teq-project-api.onrender.com/api/carts', cartItem);
+        await axios.post('https://sreeteqs-api.onrender.com/api/carts', cartItem);
     } catch (error) {
         console.error('Error during booking process:', error);
     }
@@ -497,7 +563,7 @@ const handleLogout = () => {
             throw new Error('Userid is required to fetch cart history');
         }
 
-        const response = await axios.get(`https://sree-teq-project-api.onrender.com/api/payment/user/${userid}`);
+        const response = await axios.get(`https://sreeteqs-api.onrender.com/api/payment/user/${userid}`);
         if (response.data.status === 'success') {
             const cartHistory = response.data.data.map((payment) => {
                 return {
@@ -569,6 +635,24 @@ const handleLogout = () => {
       text: 'Your home deserves top-notch care! Our home AC service aims to make sure you get exactly that. With a strong focus on efficiency and keeping customers happy, we ensure your window AC doesn’t just cool but does its job reliably day in and day out.'
     },
   ];
+
+
+  // Helper function to format ISO time to a readable format
+  const formatTime = (isoTime) => {
+    const date = new Date(isoTime);
+    const options = { hour: 'numeric', minute: 'numeric', hour12: true };
+    return date.toLocaleString('en-US', options);
+};
+
+// Helper function to format date to dd/mm/yyyy
+const formatDate = (isoDate) => {
+    const date = new Date(isoDate);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+};
+
 // change DONE
   const content1 = [
     {
@@ -617,7 +701,7 @@ const [wuninstallations, setWuninstallations] = useState([]);
 useEffect(() => {
   const fetchWashRepairs = async () => {
     try {
-      const response = await axios.get('https://sree-teq-project-api.onrender.com/api/wrepairs');
+      const response = await axios.get('https://sreeteqs-api.onrender.com/api/wrepairs');
       setWrepairs(response.data); // Set the repair services from the backend
     } catch (error) {
       console.error('Error fetching repairs:', error);
@@ -626,7 +710,7 @@ useEffect(() => {
 
   const fetchWashInstallations = async () => {
     try {
-      const response = await axios.get('https://sree-teq-project-api.onrender.com/api/winstallations');
+      const response = await axios.get('https://sreeteqs-api.onrender.com/api/winstallations');
       setWinstallations(response.data); // Set the installation services from the backend
     } catch (error) {
       console.error('Error fetching installations:', error);
@@ -635,7 +719,7 @@ useEffect(() => {
 
   const fetchWashUninstallations = async () => {
     try {
-      const response = await axios.get('https://sree-teq-project-api.onrender.com/api/wuninstallations');
+      const response = await axios.get('https://sreeteqs-api.onrender.com/api/wuninstallations');
       setWuninstallations(response.data); // Set the uninstallation services from the backend
     } catch (error) {
       console.error('Error fetching uninstallations:', error);
@@ -670,7 +754,7 @@ const handleRemoveservicefromCart = (selectedServiceId) => {
   useEffect(() => {
     const fetchSingleDoors = async () => {
       try {
-        const response = await axios.get('https://sree-teq-project-api.onrender.com/api/singledoor');
+        const response = await axios.get('https://sreeteqs-api.onrender.com/api/singledoor');
         setSingleDoors(response.data); // Assuming response.data is an array
       } catch (error) {
         console.error('Error fetching single door refrigerators:', error);
@@ -683,7 +767,7 @@ const handleRemoveservicefromCart = (selectedServiceId) => {
   useEffect(() => {
     const fetchDoubleDoors = async () => {
       try {
-        const response = await axios.get('https://sree-teq-project-api.onrender.com/api/doubledoor');
+        const response = await axios.get('https://sreeteqs-api.onrender.com/api/doubledoor');
         setDoubleDoors(response.data); // Assuming response.data is an array
       } catch (error) {
         console.error('Error fetching single door refrigerators:', error);
@@ -696,7 +780,7 @@ const handleRemoveservicefromCart = (selectedServiceId) => {
   useEffect(() => {
     const fetchsideBySideDoors = async () => {
       try {
-        const response = await axios.get('https://sree-teq-project-api.onrender.com/api/sidedoor');
+        const response = await axios.get('https://sreeteqs-api.onrender.com/api/sidedoor');
         setSideBySideDoors(response.data); // Assuming response.data is an array
       } catch (error) {
         console.error('Error fetching single door refrigerators:', error);
@@ -719,140 +803,222 @@ const handleRemoveservicefromCart = (selectedServiceId) => {
     <div className="container">
     <div>
     <br/> <br/> <br/> <br/>
-    <header className="fixed-header d-flex justify-content-between align-items-center py-3 px-4">
-        <div><Col xs={3} className="d-flex align-items-center">
-        <Button variant="link" onClick={handleProfileClick}>
-            <FontAwesomeIcon icon={faUserCircle} size="2x" />
-        </Button>
-        </Col></div>
-        <div className="location">
-        <FontAwesomeIcon icon={faMapMarkerAlt} size="lg" className="me-2" />
-        {location}
-        </div>
-        <div className="icons d-flex">
-        <Button variant="primary" onClick={() => setShowCartModal(true)}>
-          <i className="fa fa-shopping-cart"></i> ({cart.length})
-        </Button>
-        <div className="notifications-container">
-        <Button
-            variant="link"
-            onClick={() => setShowNotifications(!showNotifications)}
+    <header 
+  className="fixed-header d-flex justify-content-between align-items-center py-3 px-4"
+  style={{
+    width: '100%',
+    backgroundColor: '#fff',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+    flexDirection: window.innerWidth <= 768 ? 'row' : 'row',
+    padding: '10px 15px',
+    justifyContent: 'space-between'
+  }}
+>
+  <div style={{ display: 'flex', alignItems: 'center' }}>
+    <Col xs={3} className="d-flex align-items-center">
+      <Button variant="link" onClick={handleProfileClick} style={{ padding: '0' }}>
+        <FontAwesomeIcon icon={faUserCircle} size="3x" />
+      </Button>
+    </Col>
+  </div>
+
+  <div 
+    className="location" 
+    style={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      marginLeft: '5px', 
+      fontSize: '0.9rem' 
+    }}
+  >
+    <FontAwesomeIcon icon={faMapMarkerAlt} size="2x" className="me-2" />
+  </div>
+
+  <div 
+    className="icons d-flex"
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'flex-end',
+      gap: '10px',
+    }}
+  >
+    <Button 
+      variant="primary" 
+      onClick={() => setShowCartModal(true)}
+      style={{ 
+        padding: '5px 10px', 
+        fontSize: '0.9rem', 
+        borderRadius: '8px',
+        display: 'flex',
+        alignItems: 'center'
+      }}
+    >
+      <i className="fa fa-shopping-cart" style={{ fontSize: '2rem', marginRight: '5px' }}></i>
+      <span>({cart.length})</span>
+    </Button>
+
+    <div 
+      className="notifications-container" 
+      style={{ 
+        position: 'relative', 
+        marginLeft: '10px',
+        display: 'flex',
+        alignItems: 'center'
+      }}
+    >
+      <Button
+        variant="link"
+        onClick={() => setShowNotifications(!showNotifications)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0'
+        }}
+      >
+        <FontAwesomeIcon icon={faBell} size="3x" />
+        <Badge 
+          bg="secondary" 
+          style={{
+            position: 'absolute',
+            top: '0',
+            right: '-10px',
+            fontSize: '0.7rem',
+            borderRadius: '50%',
+            padding: '2px 5px'
+          }}
         >
-            <FontAwesomeIcon icon={faBell} size="2x"/>
-            <Badge bg="secondary" >{notifications.length}</Badge>
-        </Button>
-        {showNotifications && (
-            <div className="notifications-dropdown">
-            {notifications.length === 0 ? (
-                <div>No notifications</div>
-            ) : (
-                notifications.map(notification => (
-                <div key={notification.id} className="notification-item">
-                    {notification.message}
-                </div>
-                ))
-            )}
-            </div>
-        )}
+          {notifications.length}
+        </Badge>
+      </Button>
+
+      {showNotifications && (
+        <div
+          className="notifications-dropdown"
+          style={{
+            position: 'absolute',
+            top: '40px',
+            right: '0',
+            background: 'white',
+            border: '1px solid #ddd',
+            borderRadius: '4px',
+            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+            width: '200px',
+            padding: '10px',
+            zIndex: 1
+          }}
+        >
+          {notifications.length === 0 ? (
+            <div>No notifications</div>
+          ) : (
+            notifications.map(notification => (
+              <div key={notification.id} className="notification-item">
+                {notification.message}
+              </div>
+            ))
+          )}
         </div>
-      </div>
-      </header>
+      )}
+    </div>
+  </div>
+</header>
+
       
     {/* Cart Modal */}
     <Modal show={showCartModal} onHide={() => setShowCartModal(false)}>
-    <Modal.Header closeButton>
-        <Modal.Title>Cart</Modal.Title>
-    </Modal.Header>
-    <Modal.Body>
-        <ul className="list-group">
-            {cart.map((item) => (
-                <li className="list-group-item d-flex justify-content-between align-items-center" key={item._id}>
-                    <div>
-                        <strong>Type:</strong> {item.type}<br />
-                        <strong>Price:</strong> ₹{item.price}<br />
-                        <strong>Discount:</strong> ₹100 off 2nd item onwards<br />
-                        <strong>Estimated Time:</strong> {item.time || 'N/A'}<br />
-                        <strong>Slot Booked Time:</strong> {item.slotBookedTime ? new Date(item.slotBookedTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}<br />
-                        <strong>Slot Booked Date:</strong> {item.slotBookedDate ? new Date(item.slotBookedDate).toLocaleDateString('en-GB') : 'N/A'}<br />
-                        <strong>Total Price:</strong> ₹{item.price}<br />
-                    </div>
-                    <Button variant="danger" onClick={() => handleRemoveFromCart(item._id)}>Remove</Button>
-                </li>
-            ))}
-        </ul>
-        <hr />
-        <div className="d-flex justify-content-between">
-            <strong>Subtotal:</strong>
-            <span>₹{cart.reduce((total, item) => total + (typeof item.price === 'number' ? item.price : parseFloat(item.price.replace(/[^0-9.-]+/g, '')) || 0), 0).toFixed(2)}</span>
-        </div>
-        <div className="d-flex justify-content-between">
-            <strong>Discount Applied:</strong>
-            <span>₹{cart.length >= 2 ? 100 : 0}</span>
-        </div>
-        <div className="d-flex justify-content-between">
-            <strong>Total Amount:</strong>
-            <span>₹{(cart.reduce((total, item) => total + (typeof item.price === 'number' ? item.price : parseFloat(item.price.replace(/[^0-9.-]+/g, '')) || 0), 0) - (cart.length >= 2 ? 100 : 0)).toFixed(2)}</span>
-        </div>
-
-        {showHistory && (
-            <div style={{ marginTop: '1rem' }}>
-                <h5>Cart History</h5>
-                {cartHistory.length === 0 ? (
-                    <p>No previous transactions.</p>
-                ) : (
-                    <ul style={{ display: 'flex', flexWrap: 'wrap', padding: 0, listStyleType: 'none' }}>
-                        {cartHistory.map((history, index) => (
-                            <li 
-                                style={{
-                                    flex: '0 0 48%', // Two items per row
-                                    marginBottom: '20px',
-                                    border: '1px solid #ddd',
-                                    padding: '10px',
-                                    borderRadius: '5px',
-                                    backgroundColor: '#f8f9fa'
-                                }} 
-                                key={index}
-                            >
-                                <strong>Transaction {index + 1}:</strong>
-                                <ul style={{ padding: 0, margin: 0 }}>
-                                    <li>
-                                        <strong>Type:</strong> {history.type}
-                                    </li>
-                                    <li>
-                                        <strong>Price:</strong> ₹{history.price}
-                                    </li>
-                                    <li>
-                                        <strong>Discount:</strong> ₹{history.discount}
-                                    </li>
-                                    <li>
-                                        <strong>Estimated Time:</strong> {history.time || 'N/A'}
-                                    </li>
-                                    <li>
-                                        <strong>Slot Booked Time:</strong> {history.slotBookedTime ? new Date(history.slotBookedTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
-                                    </li>
-                                    <li>
-                                        <strong>Slot Booked Date:</strong> {history.slotBookedDate ? new Date(history.slotBookedDate).toLocaleDateString('en-GB') : 'N/A'}
-                                    </li>
-                                    <li>
-                                        <strong>Total Price:</strong> ₹{history.price}
-                                    </li>
-                                </ul>
-                            </li>
-                        ))}
-                    </ul>
-                )}
+        <Modal.Header closeButton>
+            <Modal.Title>Cart</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+            <ul className="list-group">
+                {cart.map((item) => (
+                    <li className="list-group-item d-flex justify-content-between align-items-center" key={item._id}>
+                        <div>
+                            <strong>Type:</strong> {item.type}<br />
+                            <strong>Price:</strong> ₹{item.price}<br />
+                            <strong>Discount:</strong> ₹100 off 2nd item onwards<br />
+                            <strong>Estimated Time:</strong> {item.time || 'N/A'}<br />
+                            <strong>Slot Booked Time:</strong> {item.slotBookedTime ? formatTime(item.slotBookedTime) : 'N/A'}<br />
+                            <strong>Slot Booked Date:</strong> {item.slotBookedDate ? formatDate(item.slotBookedDate) : 'N/A'}<br />
+                            <strong>Total Price:</strong> ₹{item.price}<br />
+                        </div>
+                        <Button variant="danger" onClick={() => handleRemoveFromCart(item._id)}>Remove</Button>
+                    </li>
+                ))}
+            </ul>
+            <hr />
+            <div className="d-flex justify-content-between">
+                <strong>Subtotal:</strong>
+                <span>₹{cart.reduce((total, item) => total + (typeof item.price === 'number' ? item.price : parseFloat(item.price.replace(/[^0-9.-]+/g, '')) || 0), 0).toFixed(2)}</span>
             </div>
-        )}
+            <div className="d-flex justify-content-between">
+                <strong>Discount Applied:</strong>
+                <span>₹{cart.length >= 2 ? 100 : 0}</span>
+            </div>
+            <div className="d-flex justify-content-between">
+                <strong>Total Amount:</strong>
+                <span>₹{(cart.reduce((total, item) => total + (typeof item.price === 'number' ? item.price : parseFloat(item.price.replace(/[^0-9.-]+/g, '')) || 0), 0) - (cart.length >= 2 ? 100 : 0)).toFixed(2)}</span>
+            </div>
 
-    </Modal.Body>
-    <Modal.Footer>
-        <Button variant="secondary" onClick={() => setShowCartModal(false)}>Close</Button>
-        <Button variant="primary" onClick={handleProceedToPay}>Proceed to Pay</Button>
-        <Button variant="info" onClick={handleShowHistory}>
-            {showHistory ? "Hide History" : "Show History"}
-        </Button>
-    </Modal.Footer>
-</Modal>
+            {showHistory && (
+                <div style={{ marginTop: '1rem' }}>
+                    <h5>Cart History</h5>
+                    {cartHistory.length === 0 ? (
+                        <p>No previous transactions.</p>
+                    ) : (
+                        <ul style={{ display: 'flex', flexWrap: 'wrap', padding: 0, listStyleType: 'none' }}>
+                            {cartHistory.map((history, index) => (
+                                <li 
+                                    style={{
+                                        flex: '0 0 48%', // Two items per row
+                                        marginBottom: '20px',
+                                        border: '1px solid #ddd',
+                                        padding: '10px',
+                                        borderRadius: '5px',
+                                        backgroundColor: '#f8f9fa'
+                                    }} 
+                                    key={index}
+                                >
+                                    <strong>Transaction {index + 1}:</strong>
+                                    <ul style={{ padding: 0, margin: 0 }}>
+                                        <li>
+                                            <strong>Type:</strong> {history.type}
+                                        </li>
+                                        <li>
+                                            <strong>Price:</strong> ₹{history.price}
+                                        </li>
+                                        <li>
+                                            <strong>Discount:</strong> ₹{history.discount}
+                                        </li>
+                                        <li>
+                                            <strong>Estimated Time:</strong> {history.time || 'N/A'}
+                                        </li>
+                                        <li>
+                                            <strong>Slot Booked Time:</strong> {history.slotBookedTime ? new Date(history.slotBookedTime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
+                                        </li>
+                                        <li>
+                                            <strong>Slot Booked Date:</strong> {history.slotBookedDate ? new Date(history.slotBookedDate).toLocaleDateString('en-GB') : 'N/A'}
+                                        </li>
+                                        <li>
+                                            <strong>Total Price:</strong> ₹{history.price}
+                                        </li>
+                                    </ul>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            )}
+
+        </Modal.Body>
+        <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowCartModal(false)}>Close</Button>
+            <Button variant="primary" onClick={handleProceedToPay}>Proceed to Order</Button>
+            <Button variant="info" onClick={handleShowHistory}>
+                {showHistory ? "Hide History" : "Show History"}
+            </Button>
+        </Modal.Footer>
+    </Modal>
 
     {/* Slot Booking Modal */}
     <Modal show={showSlotModal} onHide={() => setShowSlotModal(false)}>
