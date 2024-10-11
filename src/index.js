@@ -61,7 +61,7 @@ root.render(
           rel="noopener noreferrer"
           className="whatsapp-icon btn btn-success rounded-circle"
         >
-          <i className="fab fa-whatsapp fa-4x"></i>
+          <i className="fab fa-whatsapp fa-3x"></i>
         </a>
     </div>
 
@@ -72,7 +72,7 @@ root.render(
           target="_blank"
           className="phone-icon btn btn-success rounded-circle"
         >
-          <i className="fas fa-phone fa-4x"></i>
+          <i className="fas fa-phone fa-3x"></i>
         </a>
     </div>
   </BrowserRouter>

@@ -121,12 +121,13 @@ li {
   font-size: smaller;
   font-weight: 300;
 }
+
 .whatsapp-icon {
   position: fixed;
-  bottom: 300px;
+  bottom: 225px;
   right: 40px;
-  width: 75px;
-  height: 75px;
+  width: 60px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -136,27 +137,28 @@ li {
   transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
+
 .whatsapp-icon:hover {
-  transform: scale(1.1); 
+  transform: scale(1.2); 
   background-color: #218838; 
 }
 
 .phone-icon {
   position: fixed;
-  bottom: 200px;
+  bottom: 150px;
   right: 40px;
-  width: 75px;
-  height: 75px;
+  width: 60px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 1000;
   color:white;
-  transition: transform 0.3s ease, background-color 0.3s ease;
+  transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
 .phone-icon:hover {
-  transform: scale(1.1); 
+  transform: scale(1.2); 
   background-color: #218838; 
 }
