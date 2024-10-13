@@ -18,25 +18,29 @@ const ServicePage = () => {
     setMenuOpen(!menuOpen);
   };
 
-  const fetchData = async () => {
+const fetchData = async () => {
     try {
       const [
-        servicesResponse,
-        repairsResponse,
+        servicesResponse, 
+        repairsResponse, 
         installationsResponse,
-        notificationsResponse,
+        notificationsResponse // Add the response for notifications
       ] = await Promise.all([
-        axios.get('https://nr-agencies-0-api.onrender.com/api/services'),
-        axios.get('https://nr-agencies-0-api.onrender.com/api/repairs'),
-        axios.get('https://nr-agencies-0-api.onrender.com/api/installations'),
-        axios.get('https://nr-agencies-0-api.onrender.com/api/notifications'),
+        axios.get('https://sreeteqs-api.onrender.com/api/services'),
+        axios.get('https://sreeteqs-api.onrender.com/api/repairs'),
+        axios.get('https://sreeteqs-api.onrender.com/api/installations'),
+        axios.get('https://sreeteqs-api.onrender.com/api/notifications') // Corrected endpoint
       ]);
-
-      setServices(servicesResponse.data);
+  
+      // Log the fetched data for debugging
+  
+      // Set state with the fetched data
+      setServices(servicesResponse.data);  
       setRepairs(repairsResponse.data);
       setInstallations(installationsResponse.data);
-      setNotifications(notificationsResponse.data);
-
+      setNotifications(notificationsResponse.data); // Set notifications state
+  
+      // Combine all items into a single array (services, repairs, installations)
       setAllItems([
         ...servicesResponse.data,
         ...repairsResponse.data,
@@ -46,7 +50,7 @@ const ServicePage = () => {
       console.error('Error fetching data:', error);
     }
   };
-
+    
   useEffect(() => {
     fetchData();
   }, []);
